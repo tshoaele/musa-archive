@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Anime Identity Engine</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@400;600;800&display=swap" rel="stylesheet"/>
+<style>
+:root{
+  --bg:#f7f4ee;--surface:#ffffff;--surface2:#f0ecе4;
+  --text:#1a1714;--muted:#7a7570;--line:#e2ddd6;
+  --accent:#2d1f6e;--accent2:#c45c1a;--btn:#2d1f6e;--btn-text:#fff;
+  --shadow:rgba(45,31,110,.10);--radius:18px;
+}
+[data-theme="dark"]{
+  --bg:#0d0c14;--surface:rgba(255,255,255,.07);--surface2:rgba(255,255,255,.04);
+  --text:#f2ede6;--muted:#8a849a;--line:rgba(255,255,255,.11);
+  --accent:#a97fff;--accent2:#f5c45a;--btn:#a97fff;--btn-text:#0d0c14;
+  --shadow:rgba(0,0,0,.4);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{
+  min-height:100vh;font-family:'DM Sans',system-ui,sans-serif;
+  background:var(--bg);color:var(--text);
+  display:flex;align-items:center;justify-content:center;padding:20px;
+  transition:background .3s,color .3s;
+}
+[data-theme="dark"] body{
+  background:radial-gradient(ellipse at 20% 0%,rgba(169,127,255,.15),transparent 50%),
+             radial-gradient(ellipse at 80% 100%,rgba(245,196,90,.10),transparent 50%),
+             var(--bg);
+}
+.app{width:min(580px,100%)}
+.shell{
+  background:var(--surface);border:1px solid var(--line);
+  border-radius:var(--radius);box-shadow:0 8px 40px var(--shadow);
+  overflow:hidden;
+}
+/* HEADER */
+header{
+  padding:22px 24px 18px;border-bottom:1px solid var(--line);
+  display:flex;justify-content:space-between;align-items:flex-start;gap:12px;
+}
+.header-left .eyebrow{
+  font-size:10px;letter-spacing:.18em;text-transform:uppercase;
+  color:var(--accent2);font-weight:800;margin-bottom:6px;
+}
+.header-left h1{
+  font-family:'DM Serif Display',Georgia,serif;
+  font-size:28px;line-height:1.1;color:var(--text);font-weight:400;
+}
+.header-left h1 em{color:var(--accent);font-style:italic}
+.toggle{
+  width:36px;height:36px;border-radius:10px;border:1px solid var(--line);
+  background:var(--surface2);color:var(--muted);cursor:pointer;font-size:15px;
+  flex-shrink:0;display:flex;align-items:center;justify-content:center;
+  transition:background .2s;
+}
+.toggle:hover{background:var(--line)}
+/* MAIN */
+main{padding:20px 24px;display:grid;gap:14px}
+label{
+  display:block;font-size:11px;font-weight:800;letter-spacing:.1em;
+  text-transform:uppercase;color:var(--muted);margin-bottom:6px;
+}
+input,textarea{
+  width:100%;border:1px solid var(--line);background:var(--surface2);
+  color:var(--text);border-radius:12px;padding:12px 14px;
+  font:inherit;font-size:14px;outline:none;transition:border .2s,box-shadow .2s;
+}
+[data-theme="dark"] input,[data-theme="dark"] textarea{background:rgba(0,0,0,.22)}
+input:focus,textarea:focus{
+  border-color:var(--accent);
+  box-shadow:0 0 0 3px rgba(169,127,255,.15);
+}
+.row{display:grid;grid-template-columns:1fr 136px;gap:10px;align-items:end}
+@media(max-width:480px){.row{grid-template-columns:1fr 110px}}
+/* RATIO */
+.ratio-wrap{position:relative}
+.ratio-btn{
+  width:100%;border:1px solid var(--line);background:var(--surface2);
+  color:var(--text);border-radius:12px;padding:11px 13px;
+  font:inherit;font-size:14px;font-weight:600;
+  display:flex;align-items:center;justify-content:space-between;gap:8px;cursor:pointer;
+}
+[data-theme="dark"] .ratio-btn{background:rgba(0,0,0,.22)}
+.ratio-left{display:flex;align-items:center;gap:9px}
+.ri{display:inline-block;border:2px solid currentColor;border-radius:3px;flex-shrink:0}
+.r11{width:16px;height:16px}.r34{width:13px;height:18px}.r916{width:11px;height:20px}
+.r43{width:20px;height:14px}.r169{width:24px;height:14px}
+.chev{font-size:11px;color:var(--muted)}
+.ratio-menu{
+  position:absolute;z-index:20;top:calc(100% + 6px);left:0;right:0;
+  background:var(--surface);border:1px solid var(--line);
+  border-radius:12px;box-shadow:0 12px 32px var(--shadow);
+  padding:5px;display:none;
+}
+.ratio-menu.open{display:grid;gap:2px}
+.ratio-item{
+  border:0;background:transparent;color:var(--text);
+  border-radius:8px;padding:9px 10px;
+  display:flex;align-items:center;gap:9px;cursor:pointer;font:inherit;font-size:13px;font-weight:600;
+}
+.ratio-item:hover,.ratio-item.active{background:rgba(169,127,255,.12)}
+/* GENERATE BTN */
+.generate{
+  width:100%;border:0;border-radius:12px;padding:14px;cursor:pointer;
+  font:inherit;font-size:14px;font-weight:800;letter-spacing:.02em;
+  background:var(--btn);color:var(--btn-text);
+  box-shadow:0 4px 20px var(--shadow);transition:opacity .2s,transform .1s;
+}
+.generate:hover{opacity:.9}.generate:active{transform:scale(.99)}
+/* OUTPUT */
+textarea{min-height:180px;resize:vertical;line-height:1.5;font-size:13px}
+/* PILLS */
+.pills{display:flex;gap:7px;flex-wrap:wrap}
+.pill{
+  font-size:11px;border:1px solid var(--line);background:var(--surface2);
+  color:var(--muted);padding:5px 10px;border-radius:999px;font-weight:600;
+}
+/* ACTIONS */
+.actions{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.ghost{
+  border:1px solid var(--line);background:var(--surface2);color:var(--text);
+  border-radius:12px;padding:12px;cursor:pointer;font:inherit;
+  font-size:13px;font-weight:700;transition:background .2s;
+}
+.ghost:hover{background:var(--line)}
+.status{font-size:12px;color:var(--accent2);min-height:16px;font-weight:600}
+</style>
+</head>
+<body>
+<div class="app"><div class="shell">
+  <header>
+    <div class="header-left">
+      <div class="eyebrow">Prompt Generator</div>
+      <h1>Anime in.<br><em>Prompt out.</em></h1>
+    </div>
+    <button class="toggle" id="themeBtn" title="Toggle theme">☾</button>
+  </header>
+  <main>
+    <div class="row">
+      <div>
+        <label for="anime">Anime / theme</label>
+        <input id="anime" placeholder="e.g. Naruto, Bleach, Arcane" autocomplete="off"/>
+      </div>
+      <div class="ratio-wrap">
+        <label>Ratio</label>
+        <button class="ratio-btn" id="ratioBtn" type="button">
+          <span class="ratio-left"><i class="ri r916"></i><span id="ratioLabel">9:16</span></span>
+          <span class="chev">▾</span>
+        </button>
+        <div class="ratio-menu" id="ratioMenu"></div>
+      </div>
+    </div>
+    <button class="generate" id="generateBtn">Generate Prompt</button>
+    <div class="pills" id="pills">
+      <span class="pill">Lighting: auto</span>
+      <span class="pill">Lore: theme-aware</span>
+      <span class="pill">Ratio: 9:16</span>
+    </div>
+    <div>
+      <label for="output">Generated prompt</label>
+      <textarea id="output" readonly placeholder="Your prompt appears here..."></textarea>
+    </div>
+    <div class="actions">
+      <button class="ghost" id="copyBtn">Copy</button>
+      <button class="ghost" id="clearBtn">Clear</button>
+    </div>
+    <p class="status" id="status"></p>
+  </main>
+</div></div>
+
+<script>
+'use strict';
+const $ = id => document.getElementById(id);
+const animeInput=$('anime'), output=$('output'), pills=$('pills'), status=$('status');
+const ratioBtn=$('ratioBtn'), ratioMenu=$('ratioMenu'), ratioLabel=$('ratioLabel');
+
+const RATIOS=[
+  {label:'1:1',value:'1:1 square',icon:'r11'},
+  {label:'3:4',value:'3:4 portrait',icon:'r34'},
+  {label:'9:16',value:'9:16 vertical',icon:'r916'},
+  {label:'4:3',value:'4:3 landscape',icon:'r43'},
+  {label:'16:9',value:'16:9 widescreen',icon:'r169'}
+];
+let sel=RATIOS[2];
+
+const BRIGHT=['pokemon','pokémon','one piece','dragon ball','my hero academia','fairy tail','digimon','haikyuu','spy x family','sailor moon'];
+const DARK=['solo leveling','jujutsu kaisen','jjk','tokyo ghoul','death note','chainsaw man','berserk','parasyte','devilman','castlevania','hellsing','psycho-pass','death parade'];
+
+const LORE={
+  'one piece':'pirate name, epithet, crew name, bounty, Devil Fruit and abilities, Haki type, origin sea, dream, and signature quote',
+  'naruto':'shinobi name, village, clan, rank, chakra nature, kekkei genkai, jutsu list, and signature quote',
+  'bleach':'Soul Reaper name, squad, rank, Zanpakutō name, Shikai, Bankai, reiatsu color, and quote',
+  'solo leveling':'hunter name, rank, shadow monarch title, shadow army, awakened abilities, signature weapons, and quote',
+  'jujutsu kaisen':'sorcerer name, grade, cursed technique, domain expansion, cursed energy color, and signature quote',
+  'jjk':'sorcerer name, grade, cursed technique, domain expansion, cursed energy color, and signature quote',
+  'dragon ball':'fighter name, race, transformation form, ki aura color, signature attacks, power philosophy, and quote',
+  'demon slayer':'slayer name, breathing style, Nichirin blade color, rank, signature forms, haori design, and quote',
+  'kimetsu no yaiba':'slayer name, breathing style, Nichirin blade color, rank, signature forms, and quote',
+  'attack on titan':'soldier name, regiment, titan form or strategy, ODM style, and signature quote',
+  'my hero academia':'hero name, quirk description, hero agency, costume, ultimate moves, and quote',
+  'hunter x hunter':'hunter name, Nen type, Hatsu ability, restrictions, hunter class, and quote',
+  'hxh':'hunter name, Nen type, Hatsu ability, restrictions, hunter class, and quote',
+  'black clover':'mage name, grimoire type, magic squad, signature spells, anti-magic ability, and quote',
+  'chainsaw man':'devil hunter name, devil contract, transformed weapon form, rank, and signature line',
+  'tokyo ghoul':'ghoul name, kagune type, ward, underground alias, threat rating, and quote',
+  'death note':'character name, supernatural notebook concept, alias, psychological signature, and quote',
+  'jojo':'Stand name, Stand ability, Stand cry, fashion style, and signature pose',
+  "jojo's bizarre adventure":'Stand name, Stand ability, Stand cry, fashion style, and signature pose',
+  'fullmetal alchemist':'alchemist name, military codename, alchemy specialization, transmutation ability, and quote',
+  'psycho-pass':'enforcer name, crime coefficient, Dominator config, division, and psychological profile',
+  'bleach':'Soul Reaper name, squad, rank, Zanpakutō name, Shikai, Bankai, reiatsu color, and quote',
+  'fire force':'soldier name, pyrokinetic generation, flame ability, company number, and battle philosophy',
+  'vinland saga':'warrior name, clan, signature weapon, battle philosophy, and quote',
+  'code geass':'revolutionary name, Geass ability, faction, masked identity, and tactical signature',
+  'arcane':'character name, hextech invention, faction loyalty, signature ability, and quote',
+  'cyberpunk':'mercenary name, cyberware loadout, street alias, hacker ability, and combat role',
+  'castlevania':'character name, bloodline or faction, signature magic or weapon, and quote',
+  'overlord':'character name, undead or class form, guild, supreme tier ability, and quote',
+  'fate':'Servant class, true name, Noble Phantasm, Master dynamic, and combat philosophy',
+  'fate/zero':'Servant class, true name, Noble Phantasm, Master dynamic, and combat philosophy',
+  'samurai champloo':'swordsman name, freestyle sword style, wanderer reason, and personal code',
+  'afro samurai':'warrior name, legendary blade, combat philosophy, bounty, and signature quote',
+  'baki':'fighter name, custom martial art, underground title, finishing move, and training philosophy',
+  'kengan ashura':'fighter name, technique name, corporate sponsor, fight record, and signature move',
+  'mob psycho':'character name, psychic class, emotion percentage system, awakened form, and quote',
+  'kaiju no. 8':'character name, kaiju designation, Defense Force rank, dual combat form, and quote',
+  'blue eye samurai':'swordsman name, sword style, vendetta, outcast title, and quote',
+  'record of ragnarok':'fighter name, divine opponent, Volund weapon, ancestral fighting style, and quote',
+};
+
+function norm(s){return s.trim().toLowerCase()}
+function match(n,keys){return keys.some(k=>n.includes(k))}
+function getLighting(n){
+  if(match(n,BRIGHT)) return{tag:'Bright',text:'bright vibrant anime lighting, colorful palette, clean high-visibility atmosphere, optimistic cinematic energy'};
+  if(match(n,DARK))   return{tag:'Dark',text:'dark cinematic atmosphere, dramatic shadows, glowing accents, controlled contrast, premium noir anime energy'};
+  return{tag:'Balanced',text:'balanced cinematic lighting, strong rim light, dramatic readable contrast, vibrant color accents, premium anime grade'};
+}
+function getLore(n){
+  for(const[key,val] of Object.entries(LORE)){if(n.includes(key))return val;}
+  return'character name, faction or role, unique power system, signature abilities, outfit, and a short quote';
+}
+
+function renderMenu(){
+  ratioMenu.innerHTML=RATIOS.map((r,i)=>
+    `<button type="button" class="ratio-item${r===sel?' active':''}" data-i="${i}">
+      <i class="ri ${r.icon}"></i>${r.label}
+    </button>`).join('');
+}
+function setRatio(i){sel=RATIOS[i]||RATIOS[2];ratioLabel.textContent=sel.label;ratioBtn.querySelector('.ri').className='ri '+sel.icon;renderMenu();closeMenu();}
+function openMenu(){ratioMenu.classList.add('open')}
+function closeMenu(){ratioMenu.classList.remove('open')}
+
+function generate(){
+  const raw=animeInput.value.trim();
+  if(!raw){status.textContent='Enter an anime first.';animeInput.focus();return;}
+  const n=norm(raw), L=getLighting(n), lore=getLore(n);
+  output.value=`Based on our conversation so far, create an original ${raw}-inspired anime character visual that suits me. Include ${lore}. Use ${L.text}. Format it as a ${sel.value} character poster.`;
+  pills.innerHTML=`<span class="pill">Lighting: ${L.tag}</span><span class="pill">Lore: theme-aware</span><span class="pill">Ratio: ${sel.label}</span>`;
+  status.textContent='Done.';
+}
+
+renderMenu();
+$('generateBtn').addEventListener('click',generate);
+animeInput.addEventListener('keydown',e=>{if(e.key==='Enter')generate();});
+ratioBtn.addEventListener('click',()=>ratioMenu.classList.contains('open')?closeMenu():openMenu());
+ratioMenu.addEventListener('click',e=>{const b=e.target.closest('.ratio-item');if(b)setRatio(+b.dataset.i);});
+document.addEventListener('click',e=>{if(!e.target.closest('.ratio-wrap'))closeMenu();});
+$('copyBtn').addEventListener('click',async()=>{
+  if(!output.value){status.textContent='Nothing to copy.';return;}
+  try{await navigator.clipboard.writeText(output.value);}catch{output.select();document.execCommand('copy');}
+  status.textContent='Copied.';
+});
+$('clearBtn').addEventListener('click',()=>{
+  animeInput.value='';output.value='';status.textContent='';
+  setRatio(2);
+  pills.innerHTML='<span class="pill">Lighting: auto</span><span class="pill">Lore: theme-aware</span><span class="pill">Ratio: 9:16</span>';
+  animeInput.focus();
+});
+$('themeBtn').addEventListener('click',()=>{
+  const light=document.documentElement.getAttribute('data-theme')==='light';
+  document.documentElement.setAttribute('data-theme',light?'dark':'light');
+  $('themeBtn').textContent=light?'☀︎':'☾';
+});
+</script>
+</body>
+</html>
