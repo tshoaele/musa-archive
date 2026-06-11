@@ -1,0 +1,668 @@
+<!DOCTYPE html>
+<html lang="en" data-edition="standard" data-theme="light">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Anime Identity Engine</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;1,400&family=Syne:wght@400;600;800&display=swap" rel="stylesheet"/>
+<style>
+/* ── TOKENS ── */
+:root {
+  --bg: #f4f0e8;
+  --surface: #ffffff;
+  --surface2: #ede9e0;
+  --text: #16120e;
+  --muted: #82786a;
+  --line: #ddd8ce;
+  --accent: #1a1410;
+  --accent2: #b85c20;
+  --pill-bg: #ede9e0;
+  --btn: #1a1410;
+  --btn-fg: #f4f0e8;
+  --shadow: rgba(26,20,16,.12);
+  --r: 20px;
+  --font-display: 'Playfair Display', Georgia, serif;
+  --font-body: 'Syne', system-ui, sans-serif;
+}
+[data-theme="dark"] {
+  --bg: #111016;
+  --surface: #1c1a22;
+  --surface2: #242230;
+  --text: #ede9e0;
+  --muted: #7a7590;
+  --line: rgba(255,255,255,.10);
+  --accent: #c8b8ff;
+  --accent2: #f5c96a;
+  --pill-bg: #242230;
+  --btn: #c8b8ff;
+  --btn-fg: #111016;
+  --shadow: rgba(0,0,0,.5);
+}
+
+/* BLACK EDITION — dark (default) */
+[data-edition="black"][data-theme="dark"] {
+  --bg: #060609;
+  --surface: #0e0c14;
+  --surface2: #151320;
+  --text: #e8e4f0;
+  --muted: #6a6480;
+  --line: rgba(200,184,255,.12);
+  --accent: #c8b8ff;
+  --accent2: #ffd770;
+  --pill-bg: #151320;
+  --btn: linear-gradient(135deg,#c8b8ff,#a080f0);
+  --btn-fg: #06060a;
+  --shadow: rgba(0,0,0,.7);
+}
+
+/* BLACK EDITION — light */
+[data-edition="black"][data-theme="light"] {
+  --bg: #f0edf8;
+  --surface: #faf8ff;
+  --surface2: #e8e3f4;
+  --text: #1a1428;
+  --muted: #7060a0;
+  --line: rgba(100,60,200,.15);
+  --accent: #6030d0;
+  --accent2: #9c4a00;
+  --pill-bg: #e8e3f4;
+  --btn: linear-gradient(135deg,#7040e0,#4820b0);
+  --btn-fg: #faf8ff;
+  --shadow: rgba(80,40,180,.14);
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  min-height: 100vh;
+  font-family: var(--font-body);
+  background: var(--bg);
+  color: var(--text);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px 16px;
+  transition: background .4s, color .3s;
+}
+
+[data-edition="black"][data-theme="dark"] body {
+  background:
+    radial-gradient(ellipse 60% 40% at 15% 10%, rgba(200,184,255,.18), transparent),
+    radial-gradient(ellipse 50% 35% at 85% 90%, rgba(255,215,112,.12), transparent),
+    #060609;
+}
+
+[data-edition="black"][data-theme="light"] body {
+  background:
+    radial-gradient(ellipse 60% 40% at 15% 10%, rgba(112,64,224,.12), transparent),
+    radial-gradient(ellipse 50% 35% at 85% 90%, rgba(156,74,0,.08), transparent),
+    #f0edf8;
+}
+
+/* noise texture — black edition dark only */
+[data-edition="black"][data-theme="dark"] body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.035'/%3E%3C/svg%3E");
+  pointer-events: none;
+  z-index: 0;
+  opacity: .6;
+}
+
+.app { width: min(580px, 100%); position: relative; z-index: 1; }
+
+/* ── EDITION SWITCHER ── */
+.edition-bar {
+  display: flex;
+  gap: 0;
+  margin-bottom: 14px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  overflow: hidden;
+  background: var(--surface);
+}
+.ed-btn {
+  flex: 1;
+  border: 0;
+  padding: 10px 12px;
+  font: 600 12px/1 var(--font-body);
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  cursor: pointer;
+  color: var(--muted);
+  background: transparent;
+  transition: background .25s, color .25s;
+}
+.ed-btn.active {
+  background: var(--btn);
+  color: var(--btn-fg);
+}
+[data-edition="black"] .ed-btn { color: var(--muted); }
+[data-edition="black"][data-theme="dark"] .ed-btn.active {
+  background: linear-gradient(135deg, #c8b8ff, #a080f0);
+  color: #060609;
+}
+[data-edition="black"][data-theme="light"] .ed-btn.active {
+  background: linear-gradient(135deg, #7040e0, #4820b0);
+  color: #faf8ff;
+}
+
+/* ── SHELL ── */
+.shell {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--r);
+  box-shadow: 0 12px 60px var(--shadow);
+  overflow: hidden;
+  transition: background .4s, border-color .3s, box-shadow .4s;
+}
+
+[data-edition="black"][data-theme="dark"] .shell {
+  border-color: rgba(200,184,255,.18);
+  box-shadow:
+    0 0 0 1px rgba(200,184,255,.08),
+    0 24px 80px rgba(0,0,0,.8),
+    inset 0 1px 0 rgba(200,184,255,.12);
+}
+[data-edition="black"][data-theme="light"] .shell {
+  border-color: rgba(100,48,200,.18);
+  box-shadow:
+    0 0 0 1px rgba(100,48,200,.06),
+    0 16px 48px rgba(80,40,180,.14);
+}
+
+/* ── HEADER ── */
+header {
+  padding: 24px 26px 20px;
+  border-bottom: 1px solid var(--line);
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+  position: relative;
+}
+
+[data-edition="black"] header::after {
+  content: '';
+  position: absolute;
+  bottom: 0; left: 24px; right: 24px;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(200,184,255,.3), transparent);
+}
+
+.eyebrow {
+  font-size: 10px;
+  letter-spacing: .22em;
+  text-transform: uppercase;
+  font-weight: 800;
+  color: var(--accent2);
+  margin-bottom: 8px;
+}
+
+h1 {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 30px;
+  line-height: 1.05;
+  color: var(--text);
+}
+h1 em {
+  font-style: italic;
+  font-weight: 400;
+  color: var(--accent2);
+}
+
+[data-edition="black"] h1 em { color: var(--accent); }
+
+.edition-badge {
+  display: inline-block;
+  margin-top: 10px;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: .15em;
+  text-transform: uppercase;
+  padding: 4px 10px;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  color: var(--muted);
+  transition: all .3s;
+}
+
+[data-edition="black"] .edition-badge {
+  border-color: rgba(200,184,255,.25);
+  color: var(--accent);
+  background: rgba(200,184,255,.06);
+  box-shadow: 0 0 12px rgba(200,184,255,.12);
+}
+
+.header-actions { display: flex; gap: 8px; align-items: center; flex-shrink: 0; }
+
+.icon-btn {
+  width: 36px; height: 36px;
+  border-radius: 10px;
+  border: 1px solid var(--line);
+  background: var(--surface2);
+  color: var(--muted);
+  cursor: pointer;
+  font-size: 15px;
+  display: flex; align-items: center; justify-content: center;
+  transition: background .2s, color .2s;
+}
+.icon-btn:hover { background: var(--line); color: var(--text); }
+
+/* ── MAIN ── */
+main { padding: 20px 26px 24px; display: grid; gap: 14px; }
+
+label {
+  display: block;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 6px;
+}
+
+input, textarea {
+  width: 100%;
+  border: 1px solid var(--line);
+  background: var(--surface2);
+  color: var(--text);
+  border-radius: 12px;
+  padding: 12px 14px;
+  font: 400 14px/1.4 var(--font-body);
+  outline: none;
+  transition: border .2s, box-shadow .2s;
+}
+
+input:focus, textarea:focus {
+  border-color: var(--accent2);
+  box-shadow: 0 0 0 3px rgba(184,92,32,.10);
+}
+
+[data-edition="black"] input:focus,
+[data-edition="black"] textarea:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(200,184,255,.12);
+}
+
+.row { display: grid; grid-template-columns: 1fr 130px; gap: 10px; align-items: end; }
+@media(max-width:460px){ .row { grid-template-columns: 1fr 106px; } h1 { font-size: 26px; } }
+
+/* ── RATIO ── */
+.ratio-wrap { position: relative; }
+.ratio-btn {
+  width: 100%;
+  border: 1px solid var(--line);
+  background: var(--surface2);
+  color: var(--text);
+  border-radius: 12px;
+  padding: 11px 13px;
+  font: 600 13px/1 var(--font-body);
+  display: flex; align-items: center; justify-content: space-between; gap: 8px;
+  cursor: pointer;
+  transition: border .2s;
+}
+.ratio-left { display: flex; align-items: center; gap: 9px; }
+.ri { display: inline-block; border: 2px solid currentColor; border-radius: 3px; flex-shrink: 0; opacity: .8; }
+.r11{width:15px;height:15px} .r34{width:13px;height:18px} .r916{width:11px;height:20px}
+.r43{width:20px;height:14px} .r169{width:24px;height:14px}
+.chev { font-size: 10px; color: var(--muted); }
+.ratio-menu {
+  position: absolute; z-index: 30; top: calc(100% + 6px); left: 0; right: 0;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  box-shadow: 0 16px 40px var(--shadow);
+  padding: 5px; display: none;
+}
+[data-edition="black"] .ratio-menu {
+  border-color: rgba(200,184,255,.18);
+  box-shadow: 0 20px 60px rgba(0,0,0,.8), inset 0 1px 0 rgba(200,184,255,.08);
+}
+.ratio-menu.open { display: grid; gap: 2px; }
+.ratio-item {
+  border: 0; background: transparent; color: var(--text);
+  border-radius: 9px; padding: 9px 11px;
+  display: flex; align-items: center; gap: 9px;
+  cursor: pointer; font: 600 13px/1 var(--font-body); text-align: left;
+  transition: background .15s;
+}
+.ratio-item:hover, .ratio-item.active { background: var(--surface2); }
+[data-edition="black"] .ratio-item:hover,
+[data-edition="black"] .ratio-item.active { background: rgba(200,184,255,.10); }
+
+/* ── GENERATE ── */
+.generate {
+  width: 100%; border: 0; border-radius: 14px;
+  padding: 15px 18px;
+  cursor: pointer;
+  font: 800 13px/1 var(--font-body);
+  letter-spacing: .1em; text-transform: uppercase;
+  background: var(--btn); color: var(--btn-fg);
+  box-shadow: 0 6px 24px var(--shadow);
+  transition: opacity .2s, transform .1s, box-shadow .2s;
+  position: relative; overflow: hidden;
+}
+.generate:hover { opacity: .88; box-shadow: 0 10px 32px var(--shadow); }
+.generate:active { transform: scale(.985); }
+
+[data-edition="black"] .generate {
+  background: linear-gradient(135deg, #c8b8ff 0%, #9060e8 100%);
+  color: #06060a;
+  box-shadow: 0 8px 32px rgba(200,184,255,.25);
+}
+[data-edition="black"] .generate:hover {
+  box-shadow: 0 12px 48px rgba(200,184,255,.35);
+}
+
+/* shimmer on black edition */
+[data-edition="black"] .generate::before {
+  content: '';
+  position: absolute;
+  top: 0; left: -100%; width: 60%; height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,.25), transparent);
+  transition: left .5s;
+}
+[data-edition="black"] .generate:hover::before { left: 140%; }
+
+/* ── PILLS ── */
+.pills { display: flex; gap: 7px; flex-wrap: wrap; }
+.pill {
+  font-size: 11px; font-weight: 600;
+  border: 1px solid var(--line);
+  background: var(--pill-bg);
+  color: var(--muted);
+  padding: 5px 11px; border-radius: 999px;
+}
+[data-edition="black"] .pill {
+  border-color: rgba(200,184,255,.14);
+  color: var(--accent);
+  background: rgba(200,184,255,.06);
+}
+
+/* ── TEXTAREA ── */
+textarea {
+  min-height: 172px;
+  resize: vertical;
+  line-height: 1.55;
+  font-size: 13px;
+}
+
+/* ── ACTIONS ── */
+.actions { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.ghost {
+  border: 1px solid var(--line);
+  background: var(--surface2);
+  color: var(--text);
+  border-radius: 12px; padding: 12px;
+  cursor: pointer; font: 700 13px/1 var(--font-body);
+  letter-spacing: .04em;
+  transition: background .2s;
+}
+.ghost:hover { background: var(--line); }
+[data-edition="black"] .ghost { border-color: rgba(200,184,255,.14); }
+[data-edition="black"] .ghost:hover { background: rgba(200,184,255,.10); }
+
+/* ── STATUS ── */
+.status {
+  font-size: 12px; font-weight: 700;
+  color: var(--accent2); min-height: 16px;
+  letter-spacing: .04em;
+}
+[data-edition="black"] .status { color: var(--accent); }
+
+/* ── DIVIDER ── */
+.divider {
+  height: 1px;
+  background: var(--line);
+  margin: 0 -26px;
+}
+[data-edition="black"] .divider {
+  background: linear-gradient(90deg, transparent, rgba(200,184,255,.2), transparent);
+}
+
+/* ── BLACK EDITION WATERMARK ── */
+.watermark {
+  text-align: center;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: .22em;
+  text-transform: uppercase;
+  color: var(--muted);
+  opacity: 0;
+  transition: opacity .4s;
+  padding: 0 0 2px;
+}
+[data-edition="black"] .watermark {
+  opacity: 1;
+  color: rgba(200,184,255,.4);
+}
+</style>
+</head>
+<body>
+<div class="app">
+
+  <!-- EDITION SWITCHER -->
+  <div class="edition-bar">
+    <button class="ed-btn active" id="edStd">Standard</button>
+    <button class="ed-btn" id="edBlk">⬛ Black Edition</button>
+  </div>
+
+  <div class="shell">
+    <header>
+      <div>
+        <div class="eyebrow" id="eyebrow">Prompt Generator</div>
+        <h1>Anime in.<br><em>Prompt out.</em></h1>
+        <span class="edition-badge" id="edBadge">Standard</span>
+      </div>
+      <div class="header-actions">
+        <button class="icon-btn" id="themeBtn" title="Toggle theme">☾</button>
+      </div>
+    </header>
+
+    <main>
+      <div class="row">
+        <div>
+          <label for="anime">Anime / theme</label>
+          <input id="anime" placeholder="e.g. Naruto, Bleach, Arcane" autocomplete="off"/>
+        </div>
+        <div class="ratio-wrap">
+          <label>Ratio</label>
+          <button class="ratio-btn" id="ratioBtn" type="button">
+            <span class="ratio-left"><i class="ri r916"></i><span id="ratioLabel">9:16</span></span>
+            <span class="chev">▾</span>
+          </button>
+          <div class="ratio-menu" id="ratioMenu"></div>
+        </div>
+      </div>
+
+      <button class="generate" id="generateBtn">Generate Prompt</button>
+
+      <div class="pills" id="pills">
+        <span class="pill">Lighting: auto</span>
+        <span class="pill">Lore: theme-aware</span>
+        <span class="pill">Ratio: 9:16</span>
+      </div>
+
+      <div class="divider"></div>
+
+      <div>
+        <label for="output">Generated prompt</label>
+        <textarea id="output" readonly placeholder="Your prompt appears here..."></textarea>
+      </div>
+
+      <div class="actions">
+        <button class="ghost" id="copyBtn">Copy</button>
+        <button class="ghost" id="clearBtn">Clear</button>
+      </div>
+
+      <p class="status" id="status"></p>
+      <p class="watermark">Vuja Tsoaela — Black Edition</p>
+    </main>
+  </div>
+
+</div>
+<script>
+'use strict';
+const $ = id => document.getElementById(id);
+const html = document.documentElement;
+const animeInput = $('anime'), output = $('output'), pillsEl = $('pills'), statusEl = $('status');
+const ratioBtn = $('ratioBtn'), ratioMenu = $('ratioMenu'), ratioLabel = $('ratioLabel');
+
+const RATIOS = [
+  {label:'1:1',  value:'1:1 square',         icon:'r11'},
+  {label:'3:4',  value:'3:4 portrait',        icon:'r34'},
+  {label:'9:16', value:'9:16 vertical',       icon:'r916'},
+  {label:'4:3',  value:'4:3 landscape',       icon:'r43'},
+  {label:'16:9', value:'16:9 widescreen',     icon:'r169'},
+];
+let sel = RATIOS[2];
+
+const BRIGHT = ['pokemon','pokémon','one piece','dragon ball','my hero academia','fairy tail','digimon','haikyuu','spy x family','sailor moon','naruto'];
+const DARK   = ['solo leveling','jujutsu kaisen','jjk','tokyo ghoul','death note','chainsaw man','berserk','parasyte','devilman','castlevania','hellsing','psycho-pass','bleach','demon slayer'];
+
+const LORE = {
+  'one piece':           'pirate name, epithet, crew, bounty, Devil Fruit and abilities, Haki type, origin sea, dream, and signature quote',
+  'naruto':              'shinobi name, village, clan, rank, chakra nature, kekkei genkai, jutsu list, and signature quote',
+  'bleach':              'Soul Reaper name, squad, rank, Zanpakutō name, Shikai, Bankai, reiatsu color, and quote',
+  'solo leveling':       'hunter name, rank, shadow monarch title, shadow army, awakened abilities, signature weapons, and quote',
+  'jujutsu kaisen':      'sorcerer name, grade, cursed technique, domain expansion, cursed energy color, and quote',
+  'jjk':                 'sorcerer name, grade, cursed technique, domain expansion, cursed energy color, and quote',
+  'dragon ball':         'fighter name, race, transformation form, ki aura color, signature attacks, power philosophy, and quote',
+  'demon slayer':        'slayer name, breathing style, Nichirin blade color, rank, signature forms, haori design, and quote',
+  'kimetsu no yaiba':    'slayer name, breathing style, Nichirin blade color, rank, signature forms, and quote',
+  'attack on titan':     'soldier name, regiment, titan form or strategy, ODM style, and signature quote',
+  'my hero academia':    'hero name, quirk description, hero agency, costume, ultimate moves, and quote',
+  'hunter x hunter':     'hunter name, Nen type, Hatsu ability, restrictions, hunter class, and quote',
+  'hxh':                 'hunter name, Nen type, Hatsu ability, restrictions, hunter class, and quote',
+  'black clover':        'mage name, grimoire type, magic squad, signature spells, anti-magic ability, and quote',
+  'chainsaw man':        'devil hunter name, devil contract, transformed weapon form, rank, and signature line',
+  'tokyo ghoul':         'ghoul name, kagune type, ward, underground alias, threat rating, and quote',
+  'death note':          'character name, supernatural notebook concept, alias, psychological signature, and quote',
+  'jojo':                'Stand name, Stand ability, Stand cry, fashion style, and signature pose',
+  "jojo's bizarre adventure": 'Stand name, Stand ability, Stand cry, fashion style, and signature pose',
+  'fullmetal alchemist': 'alchemist name, military codename, alchemy specialization, transmutation ability, and quote',
+  'psycho-pass':         'enforcer name, crime coefficient, Dominator config, division, and psychological profile',
+  'fire force':          'soldier name, pyrokinetic generation, flame ability, company number, and battle philosophy',
+  'vinland saga':        'warrior name, clan, signature weapon, battle philosophy, and quote',
+  'code geass':          'revolutionary name, Geass ability, faction, masked identity, and tactical signature',
+  'arcane':              'character name, hextech invention, faction loyalty, signature ability, and quote',
+  'cyberpunk':           'mercenary name, cyberware loadout, street alias, hacker ability, and combat role',
+  'castlevania':         'character name, bloodline or faction, signature magic or weapon, and quote',
+  'overlord':            'character name, undead or class form, guild, supreme tier ability, and quote',
+  'fate/zero':           'Servant class, true name, Noble Phantasm, Master dynamic, and combat philosophy',
+  'fate':                'Servant class, true name, Noble Phantasm, Master dynamic, and combat philosophy',
+  'samurai champloo':    'swordsman name, freestyle sword style, wanderer reason, and personal code',
+  'afro samurai':        'warrior name, legendary blade, combat philosophy, bounty, and signature quote',
+  'baki':                'fighter name, custom martial art, underground title, finishing move, and training philosophy',
+  'kengan ashura':       'fighter name, technique name, corporate sponsor, fight record, and signature move',
+  'mob psycho':          'character name, psychic class, emotion percentage system, awakened form, and quote',
+  'kaiju no. 8':         'character name, kaiju designation, Defense Force rank, dual combat form, and quote',
+  'blue eye samurai':    'swordsman name, sword style, vendetta, outcast title, and quote',
+  'record of ragnarok':  'fighter name, divine opponent, Volund weapon, ancestral fighting style, and quote',
+  'trigun':              'outlaw name, bounty, non-lethal weapon philosophy, signature move, and quote',
+  '86 eighty-six':       'squadron callsign, Juggernaught unit, survival philosophy, rank, and quote',
+  'drifters':            'warrior name, historical origin, battle ability, rival End, and quote',
+  'hell':                'condemned title, combat art, survival philosophy, supernatural island threat, and quote',
+  'dororo':              'warrior name, stolen body parts and replacements, blade style, and quote',
+  'vinland':             'warrior name, clan, signature weapon, battle philosophy, and quote',
+};
+
+function norm(s) { return s.trim().toLowerCase(); }
+function getLighting(n) {
+  if (BRIGHT.some(k => n.includes(k))) return { tag:'Bright',   text:'bright vibrant anime lighting, colorful palette, clean high-visibility atmosphere, optimistic cinematic energy' };
+  if (DARK.some(k   => n.includes(k))) return { tag:'Dark',     text:'dark cinematic atmosphere, dramatic shadows, glowing high-contrast accents, controlled noir anime energy' };
+  return                                       { tag:'Balanced', text:'balanced cinematic lighting, strong rim light, dramatic readable contrast, vibrant color accents, premium anime grade' };
+}
+function getLore(n) {
+  for (const [k, v] of Object.entries(LORE)) { if (n.includes(k)) return v; }
+  return 'character name, faction or role, unique power system, signature abilities, outfit, and a short quote';
+}
+
+/* ── RATIO MENU ── */
+function renderMenu() {
+  ratioMenu.innerHTML = RATIOS.map((r, i) =>
+    `<button type="button" class="ratio-item${r === sel ? ' active' : ''}" data-i="${i}">
+       <i class="ri ${r.icon}"></i>${r.label}
+     </button>`).join('');
+}
+function setRatio(i) {
+  sel = RATIOS[i] || RATIOS[2];
+  ratioLabel.textContent = sel.label;
+  ratioBtn.querySelector('.ri').className = 'ri ' + sel.icon;
+  renderMenu(); closeMenu();
+}
+function openMenu()  { ratioMenu.classList.add('open');    }
+function closeMenu() { ratioMenu.classList.remove('open'); }
+
+/* ── GENERATE ── */
+function generate() {
+  const raw = animeInput.value.trim();
+  if (!raw) { statusEl.textContent = 'Enter an anime first.'; animeInput.focus(); return; }
+  const n = norm(raw), L = getLighting(n), lore = getLore(n);
+  const isBlack = html.getAttribute('data-edition') === 'black';
+
+  let prompt;
+  if (isBlack) {
+    prompt = `Based on our conversation so far, create an original ${raw}-inspired anime character visual that suits me. Make the character a powerful, masculine figure with grounded Black African features and premium anime energy. Include ${lore}. Use ${L.text}. Format it as a ${sel.value} character poster. Add a stylized "Vuja Tsoaela" signature at the bottom right.`;
+  } else {
+    prompt = `Based on our conversation so far, create an original ${raw}-inspired anime character visual that suits me. Include ${lore}. Use ${L.text}. Format it as a ${sel.value} character poster.`;
+  }
+
+  output.value = prompt;
+  pillsEl.innerHTML = `<span class="pill">Lighting: ${L.tag}</span><span class="pill">Lore: theme-aware</span><span class="pill">Ratio: ${sel.label}</span>${isBlack ? '<span class="pill">Black Edition</span>' : ''}`;
+  statusEl.textContent = 'Done.';
+}
+
+/* ── EDITION TOGGLE ── */
+function setEdition(ed) {
+  html.setAttribute('data-edition', ed);
+  $('themeBtn').style.opacity = '';
+  $('themeBtn').style.pointerEvents = '';
+  $('edStd').classList.toggle('active', ed === 'standard');
+  $('edBlk').classList.toggle('active', ed === 'black');
+  $('eyebrow').textContent  = ed === 'black' ? 'Black Edition' : 'Prompt Generator';
+  $('edBadge').textContent  = ed === 'black' ? '⬛ Black Edition' : 'Standard';
+  // clear output when switching
+  output.value = '';
+  statusEl.textContent = '';
+  pillsEl.innerHTML = '<span class="pill">Lighting: auto</span><span class="pill">Lore: theme-aware</span><span class="pill">Ratio: 9:16</span>';
+}
+
+/* ── EVENTS ── */
+renderMenu();
+
+$('edStd').addEventListener('click', () => setEdition('standard'));
+$('edBlk').addEventListener('click', () => setEdition('black'));
+
+$('generateBtn').addEventListener('click', () => { try { generate(); } catch(e) { statusEl.textContent = 'Error. Try again.'; } });
+animeInput.addEventListener('keydown', e => { if (e.key === 'Enter') generate(); });
+
+ratioBtn.addEventListener('click', () => ratioMenu.classList.contains('open') ? closeMenu() : openMenu());
+ratioMenu.addEventListener('click', e => { const b = e.target.closest('.ratio-item'); if (b) setRatio(+b.dataset.i); });
+document.addEventListener('click', e => { if (!e.target.closest('.ratio-wrap')) closeMenu(); });
+
+$('copyBtn').addEventListener('click', async () => {
+  if (!output.value) { statusEl.textContent = 'Nothing to copy.'; return; }
+  try { await navigator.clipboard.writeText(output.value); }
+  catch { output.select(); document.execCommand('copy'); }
+  statusEl.textContent = 'Copied.';
+});
+
+$('clearBtn').addEventListener('click', () => {
+  animeInput.value = ''; output.value = ''; statusEl.textContent = '';
+  setRatio(2);
+  pillsEl.innerHTML = '<span class="pill">Lighting: auto</span><span class="pill">Lore: theme-aware</span><span class="pill">Ratio: 9:16</span>';
+  animeInput.focus();
+});
+
+$('themeBtn').addEventListener('click', () => {
+  const isLight = html.getAttribute('data-theme') === 'light';
+  html.setAttribute('data-theme', isLight ? 'dark' : 'light');
+  $('themeBtn').textContent = isLight ? '☀︎' : '☾';
+});
+</script>
+</body>
+</html>
