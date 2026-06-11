@@ -1,0 +1,1145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Full Course</title>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,300;0,600;0,900;1,300;1,900&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #f7f4ef;
+  --card: #ffffff;
+  --ink: #18181b;
+  --muted: #71717a;
+  --border: #e4e0d8;
+  --sand: #ede9e0;
+
+  --m1: #c94f1e;
+  --m1l: #fff0eb;
+  --m2: #1e6fc9;
+  --m2l: #ebf3ff;
+  --m3: #1e9e5e;
+  --m3l: #ebfff4;
+
+  --radius: 14px;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: var(--bg);
+  color: var(--ink);
+  min-height: 100vh;
+  line-height: 1.65;
+}
+
+/* ---- TOPBAR ---- */
+.topbar {
+  position: sticky; top: 0; z-index: 200;
+  background: var(--ink);
+  display: flex; align-items: center; gap: 16px;
+  padding: 0 24px;
+  height: 52px;
+}
+.topbar-brand {
+  font-family: 'Fraunces', serif;
+  font-weight: 900;
+  font-size: 1.1rem;
+  color: #fff;
+  letter-spacing: -0.5px;
+  white-space: nowrap;
+}
+.topbar-brand span { color: var(--m1); }
+.topbar-progress {
+  flex: 1;
+  display: flex; align-items: center; gap: 10px;
+}
+.prog-track {
+  flex: 1; height: 4px;
+  background: rgba(255,255,255,0.12);
+  border-radius: 99px; overflow: hidden;
+}
+.prog-fill {
+  height: 100%; background: var(--m1);
+  border-radius: 99px;
+  transition: width 0.5s ease;
+}
+.prog-pct {
+  font-size: 0.72rem;
+  color: rgba(255,255,255,0.5);
+  white-space: nowrap;
+}
+.topbar-back {
+  background: rgba(255,255,255,0.08);
+  border: none; color: rgba(255,255,255,0.7);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.8rem; padding: 5px 12px;
+  border-radius: 6px; cursor: pointer;
+  display: none;
+}
+.topbar-back:hover { background: rgba(255,255,255,0.15); color: #fff; }
+.topbar-back.show { display: block; }
+
+/* ---- VIEWS ---- */
+.view { display: none; }
+.view.active { display: block; }
+
+/* ---- HOME ---- */
+.home-hero {
+  max-width: 860px; margin: 0 auto;
+  padding: 64px 24px 48px;
+  text-align: center;
+}
+.home-eyebrow {
+  display: inline-block;
+  font-size: 0.7rem; font-weight: 600;
+  letter-spacing: 2px; text-transform: uppercase;
+  color: var(--muted);
+  background: var(--sand);
+  border: 1px solid var(--border);
+  padding: 4px 14px; border-radius: 99px;
+  margin-bottom: 22px;
+}
+.home-h1 {
+  font-family: 'Fraunces', serif;
+  font-weight: 900;
+  font-size: clamp(2.4rem, 6vw, 4rem);
+  line-height: 1.05;
+  letter-spacing: -2px;
+  margin-bottom: 18px;
+}
+.home-h1 em { font-style: italic; color: var(--m1); }
+.home-sub {
+  font-size: 1.05rem; color: var(--muted);
+  max-width: 520px; margin: 0 auto 40px;
+}
+.module-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 16px;
+  max-width: 860px;
+  margin: 0 auto;
+  padding: 0 24px 80px;
+}
+.mod-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 28px 24px;
+  cursor: pointer;
+  transition: all 0.2s;
+  position: relative;
+  overflow: hidden;
+  text-align: left;
+}
+.mod-card:hover { transform: translateY(-3px); box-shadow: 0 12px 32px rgba(0,0,0,0.08); }
+.mod-card::before {
+  content: '';
+  position: absolute; top: 0; left: 0; right: 0;
+  height: 4px;
+}
+.mod-card.m1::before { background: var(--m1); }
+.mod-card.m2::before { background: var(--m2); }
+.mod-card.m3::before { background: var(--m3); }
+.mod-num {
+  font-size: 0.68rem; font-weight: 600; letter-spacing: 1.5px;
+  text-transform: uppercase; margin-bottom: 10px;
+}
+.mod-card.m1 .mod-num { color: var(--m1); }
+.mod-card.m2 .mod-num { color: var(--m2); }
+.mod-card.m3 .mod-num { color: var(--m3); }
+.mod-title {
+  font-family: 'Fraunces', serif;
+  font-size: 1.3rem; font-weight: 900;
+  letter-spacing: -0.5px;
+  line-height: 1.2;
+  margin-bottom: 10px;
+}
+.mod-desc { font-size: 0.85rem; color: var(--muted); margin-bottom: 18px; }
+.mod-lessons {
+  display: flex; flex-wrap: wrap; gap: 6px;
+  margin-bottom: 20px;
+}
+.mod-tag {
+  font-size: 0.72rem; padding: 3px 10px;
+  border-radius: 99px;
+  font-weight: 500;
+}
+.m1 .mod-tag { background: var(--m1l); color: var(--m1); }
+.m2 .mod-tag { background: var(--m2l); color: var(--m2); }
+.m3 .mod-tag { background: var(--m3l); color: var(--m3); }
+.mod-cta {
+  display: inline-flex; align-items: center; gap: 6px;
+  font-size: 0.85rem; font-weight: 600;
+}
+.mod-card.m1 .mod-cta { color: var(--m1); }
+.mod-card.m2 .mod-cta { color: var(--m2); }
+.mod-card.m3 .mod-cta { color: var(--m3); }
+.mod-progress-bar {
+  height: 3px; background: var(--border); border-radius: 99px;
+  overflow: hidden; margin-top: 16px;
+}
+.mod-progress-fill { height: 100%; border-radius: 99px; transition: width 0.4s; }
+.m1 .mod-progress-fill { background: var(--m1); }
+.m2 .mod-progress-fill { background: var(--m2); }
+.m3 .mod-progress-fill { background: var(--m3); }
+
+/* ---- MODULE VIEW ---- */
+.mod-view-wrap {
+  max-width: 800px; margin: 0 auto;
+  padding: 40px 24px 80px;
+}
+.mod-view-header {
+  margin-bottom: 32px;
+}
+.mod-view-eyebrow {
+  font-size: 0.7rem; font-weight: 600;
+  letter-spacing: 2px; text-transform: uppercase;
+  margin-bottom: 8px;
+}
+.mv-m1 { color: var(--m1); }
+.mv-m2 { color: var(--m2); }
+.mv-m3 { color: var(--m3); }
+.mod-view-h2 {
+  font-family: 'Fraunces', serif;
+  font-size: clamp(1.8rem, 4vw, 2.6rem);
+  font-weight: 900; letter-spacing: -1px;
+  line-height: 1.1; margin-bottom: 10px;
+}
+.mod-view-sub { font-size: 0.95rem; color: var(--muted); }
+
+/* lesson dots nav */
+.lesson-dot-nav {
+  display: flex; gap: 6px; flex-wrap: wrap;
+  margin-bottom: 28px;
+}
+.ldn {
+  width: 11px; height: 11px; border-radius: 50%;
+  background: var(--border); cursor: pointer;
+  transition: all 0.2s;
+}
+.ldn.done { background: #a3e7c5; }
+.ldn.active-dot { transform: scale(1.4); }
+.mv-m1 .ldn.active-dot { background: var(--m1); }
+.mv-m2 .ldn.active-dot { background: var(--m2); }
+.mv-m3 .ldn.active-dot { background: var(--m3); }
+
+.lesson-nav-row {
+  display: flex; align-items: center;
+  justify-content: space-between;
+  margin-bottom: 24px; flex-wrap: wrap; gap: 10px;
+}
+.lesson-label {
+  font-size: 0.78rem; font-weight: 600;
+  letter-spacing: 1px; text-transform: uppercase;
+  color: var(--muted);
+}
+
+/* lesson card */
+.lesson-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  overflow: hidden;
+  margin-bottom: 16px;
+}
+.lc-head {
+  padding: 24px 28px 20px;
+  border-bottom: 1px solid var(--border);
+}
+.lc-tag {
+  font-size: 0.68rem; font-weight: 600;
+  letter-spacing: 1.5px; text-transform: uppercase;
+  margin-bottom: 6px;
+}
+.lc-h3 {
+  font-family: 'Fraunces', serif;
+  font-weight: 900; font-size: 1.4rem;
+  letter-spacing: -0.5px; line-height: 1.2;
+}
+.lc-body { padding: 26px 28px; }
+.lc-body p {
+  color: var(--muted); font-size: 0.93rem;
+  margin-bottom: 14px; line-height: 1.7;
+}
+.lc-body p strong { color: var(--ink); }
+.lc-body p:last-child { margin-bottom: 0; }
+
+.callout {
+  border-radius: 10px;
+  padding: 16px 18px;
+  margin: 18px 0;
+  font-size: 0.88rem;
+  line-height: 1.6;
+}
+.callout .cl { font-size: 0.68rem; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 6px; }
+.callout-orange { background: var(--m1l); border-left: 3px solid var(--m1); }
+.callout-orange .cl { color: var(--m1); }
+.callout-blue { background: var(--m2l); border-left: 3px solid var(--m2); }
+.callout-blue .cl { color: var(--m2); }
+.callout-green { background: var(--m3l); border-left: 3px solid var(--m3); }
+.callout-green .cl { color: var(--m3); }
+.callout-neutral { background: var(--sand); border-left: 3px solid var(--border); }
+.callout-neutral .cl { color: var(--muted); }
+
+.steps { display: flex; flex-direction: column; gap: 10px; margin: 16px 0; }
+.step {
+  display: flex; gap: 14px; align-items: flex-start;
+  background: var(--sand); border-radius: 10px;
+  padding: 13px 15px;
+}
+.step-num {
+  width: 26px; height: 26px; border-radius: 50%;
+  font-family: 'Fraunces', serif;
+  font-weight: 900; font-size: 0.85rem;
+  color: white; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+}
+.s-m1 { background: var(--m1); }
+.s-m2 { background: var(--m2); }
+.s-m3 { background: var(--m3); }
+.step-text strong { display: block; font-size: 0.88rem; margin-bottom: 2px; }
+.step-text span { font-size: 0.82rem; color: var(--muted); }
+
+.chip-grid { display: flex; flex-wrap: wrap; gap: 8px; margin: 14px 0; }
+.chip {
+  background: var(--sand); border: 1px solid var(--border);
+  border-radius: 8px; padding: 8px 13px;
+  font-size: 0.82rem;
+}
+.chip strong { display: block; font-size: 0.85rem; margin-bottom: 1px; }
+.chip span { color: var(--muted); font-size: 0.78rem; }
+
+.compare-table { width: 100%; border-collapse: collapse; margin: 16px 0; font-size: 0.85rem; }
+.compare-table th {
+  background: var(--sand); padding: 10px 14px;
+  text-align: left; font-weight: 600; font-size: 0.78rem;
+  border-bottom: 1px solid var(--border);
+}
+.compare-table td {
+  padding: 10px 14px; border-bottom: 1px solid var(--border);
+  color: var(--muted);
+}
+.compare-table tr:last-child td { border-bottom: none; }
+
+/* quiz inside lesson */
+.inline-quiz { margin: 20px 0; }
+.iq-q { font-weight: 600; font-size: 0.92rem; margin-bottom: 12px; }
+.iq-opts { display: flex; flex-direction: column; gap: 7px; }
+.iq-opt {
+  display: flex; align-items: flex-start; gap: 10px;
+  background: var(--sand); border: 2px solid transparent;
+  border-radius: 9px; padding: 10px 14px;
+  cursor: pointer; font-size: 0.87rem;
+  transition: all 0.15s;
+}
+.iq-opt:hover { border-color: var(--m2); background: var(--m2l); }
+.iq-opt.chosen { border-color: var(--m2); background: var(--m2l); }
+.iq-opt.right { border-color: var(--m3); background: var(--m3l); }
+.iq-opt.wrong { border-color: #ef4444; background: #fee2e2; }
+.iq-opt input { accent-color: var(--m2); margin-top: 2px; }
+.iq-reveal {
+  display: none; margin-top: 10px;
+  background: var(--sand); border-left: 3px solid var(--m2);
+  padding: 10px 13px; border-radius: 0 8px 8px 0;
+  font-size: 0.85rem; color: var(--ink); line-height: 1.55;
+}
+.iq-reveal.show { display: block; }
+
+/* BUTTONS */
+.btn {
+  display: inline-flex; align-items: center; gap: 7px;
+  font-family: 'DM Sans', sans-serif; font-weight: 600;
+  font-size: 0.88rem; padding: 11px 22px;
+  border-radius: 9px; border: none; cursor: pointer;
+  transition: all 0.18s;
+}
+.btn-primary-m1 { background: var(--m1); color: white; }
+.btn-primary-m1:hover { background: #b04118; transform: translateY(-1px); }
+.btn-primary-m2 { background: var(--m2); color: white; }
+.btn-primary-m2:hover { background: #185caa; transform: translateY(-1px); }
+.btn-primary-m3 { background: var(--m3); color: white; }
+.btn-primary-m3:hover { background: #177a49; transform: translateY(-1px); }
+.btn-ghost {
+  background: var(--sand); color: var(--ink);
+  border: 1px solid var(--border);
+}
+.btn-ghost:hover { background: var(--border); }
+.btn:disabled { opacity: 0.35; cursor: not-allowed; transform: none !important; }
+
+/* AI TUTOR */
+.tutor-wrap {
+  max-width: 700px; margin: 0 auto;
+  padding: 40px 24px 80px;
+}
+.tutor-win {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: 20px; overflow: hidden; margin-bottom: 16px;
+}
+.tutor-head {
+  background: var(--ink); color: white;
+  padding: 14px 20px;
+  display: flex; align-items: center; gap: 10px;
+  font-family: 'Fraunces', serif; font-weight: 600; font-size: 0.95rem;
+}
+.tutor-dot { width: 8px; height: 8px; border-radius: 50%; background: #4ade80; }
+.tutor-msgs {
+  padding: 20px; min-height: 180px; max-height: 380px;
+  overflow-y: auto;
+  display: flex; flex-direction: column; gap: 12px;
+}
+.tmsg {
+  max-width: 84%; padding: 11px 15px;
+  border-radius: 13px; font-size: 0.87rem; line-height: 1.6;
+}
+.tmsg.ai { background: var(--sand); color: var(--ink); align-self: flex-start; border-bottom-left-radius: 3px; }
+.tmsg.user { background: var(--m2); color: white; align-self: flex-end; border-bottom-right-radius: 3px; }
+.tmsg.loading { opacity: 0.55; font-style: italic; }
+.tutor-input-row {
+  display: flex; gap: 9px;
+  padding: 13px 18px; border-top: 1px solid var(--border);
+  background: var(--bg);
+}
+.tutor-input {
+  flex: 1; padding: 10px 14px;
+  border: 1.5px solid var(--border); border-radius: 9px;
+  font-family: 'DM Sans', sans-serif; font-size: 0.88rem;
+  background: white; outline: none; transition: border 0.18s;
+}
+.tutor-input:focus { border-color: var(--m2); }
+
+/* SUGGESTED QUESTIONS */
+.sq-wrap { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 10px; }
+.sq {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: 8px; padding: 7px 12px;
+  font-size: 0.8rem; cursor: pointer; transition: all 0.15s;
+  color: var(--ink);
+}
+.sq:hover { border-color: var(--m2); color: var(--m2); background: var(--m2l); }
+
+/* CERT */
+.cert-wrap {
+  max-width: 680px; margin: 0 auto;
+  padding: 40px 24px 80px; text-align: center;
+}
+.cert-card {
+  background: var(--card);
+  border: 2px solid var(--border);
+  border-radius: 24px; padding: 48px 40px;
+  position: relative; overflow: hidden;
+}
+.cert-card::before {
+  content: '';
+  position: absolute; inset: 0;
+  background: repeating-linear-gradient(45deg, transparent, transparent 20px, rgba(201,79,30,0.02) 20px, rgba(201,79,30,0.02) 40px);
+}
+.cert-icon { font-size: 3rem; margin-bottom: 16px; }
+.cert-h { font-family: 'Fraunces', serif; font-size: 2rem; font-weight: 900; letter-spacing: -1px; margin-bottom: 8px; }
+.cert-sub { color: var(--muted); font-size: 0.9rem; margin-bottom: 28px; }
+.cert-modules { display: flex; flex-direction: column; gap: 8px; margin-bottom: 28px; text-align: left; }
+.cert-mod {
+  display: flex; align-items: center; gap: 12px;
+  background: var(--sand); border-radius: 10px;
+  padding: 12px 16px; font-size: 0.88rem;
+}
+.cert-check { width: 22px; height: 22px; border-radius: 50%; background: var(--m3); color: white; display: flex; align-items: center; justify-content: center; font-size: 0.75rem; flex-shrink: 0; }
+.cert-next { font-size: 0.85rem; color: var(--muted); margin-top: 20px; }
+
+/* UTILS */
+.tc { text-align: center; }
+.flex-row { display: flex; gap: 10px; flex-wrap: wrap; }
+.mt8 { margin-top: 8px; }
+.mt16 { margin-top: 16px; }
+.mt24 { margin-top: 24px; }
+.mt32 { margin-top: 32px; }
+
+@media (max-width: 540px) {
+  .home-h1 { font-size: 2.2rem; }
+  .lc-body { padding: 20px 18px; }
+  .lc-head { padding: 18px 18px 14px; }
+  .cert-card { padding: 32px 22px; }
+}
+</style>
+</head>
+<body>
+
+<!-- TOPBAR -->
+<div class="topbar">
+  <div class="topbar-brand">AI<span>.</span>Course</div>
+  <div class="topbar-progress">
+    <div class="prog-track"><div class="prog-fill" id="globalFill" style="width:0%"></div></div>
+    <div class="prog-pct" id="globalPct">0%</div>
+  </div>
+  <button class="topbar-back" id="backBtn" onclick="goHome()">← Home</button>
+</div>
+
+<!-- ========== HOME ========== -->
+<div class="view active" id="view-home">
+  <div class="home-hero">
+    <div class="home-eyebrow">3 Modules · Practical · No Fluff</div>
+    <h1 class="home-h1">From <em>prompting</em><br>to building systems.</h1>
+    <p class="home-sub">A complete beginner course covering Prompt Engineering, AI Workflow Automation, and AI Agents. Pick a module or work through them in order.</p>
+  </div>
+  <div class="module-cards">
+    <div class="mod-card m1" onclick="openModule(1)">
+      <div class="mod-num">Module 01</div>
+      <div class="mod-title">Prompt Engineering</div>
+      <div class="mod-desc">Understand what makes a prompt work, and how to write prompts that are reusable, consistent, and actually get results.</div>
+      <div class="mod-lessons">
+        <span class="mod-tag">How LLMs think</span>
+        <span class="mod-tag">Prompt structure</span>
+        <span class="mod-tag">Tone & persona</span>
+        <span class="mod-tag">Few-shot & chain of thought</span>
+        <span class="mod-tag">Reusable templates</span>
+      </div>
+      <div class="mod-cta">Start Module →</div>
+      <div class="mod-progress-bar"><div class="mod-progress-fill" id="prog-m1" style="width:0%"></div></div>
+    </div>
+    <div class="mod-card m2" onclick="openModule(2)">
+      <div class="mod-num">Module 02</div>
+      <div class="mod-title">AI Workflow Automation</div>
+      <div class="mod-desc">Connect AI to the rest of your tools. Build pipelines that run on their own. Stop doing manually what a workflow can do for you.</div>
+      <div class="mod-lessons">
+        <span class="mod-tag">Triggers & actions</span>
+        <span class="mod-tag">Make / n8n / Zapier</span>
+        <span class="mod-tag">Calling APIs</span>
+        <span class="mod-tag">Your first workflow</span>
+        <span class="mod-tag">Multi-step pipelines</span>
+      </div>
+      <div class="mod-cta">Start Module →</div>
+      <div class="mod-progress-bar"><div class="mod-progress-fill" id="prog-m2" style="width:0%"></div></div>
+    </div>
+    <div class="mod-card m3" onclick="openModule(3)">
+      <div class="mod-num">Module 03</div>
+      <div class="mod-title">AI Agents</div>
+      <div class="mod-desc">What happens when AI can make decisions, not just follow instructions. How agents work, what they can do, and how to use them without coding.</div>
+      <div class="mod-lessons">
+        <span class="mod-tag">Agents vs workflows</span>
+        <span class="mod-tag">Tools & memory</span>
+        <span class="mod-tag">ReAct pattern</span>
+        <span class="mod-tag">Real agent examples</span>
+        <span class="mod-tag">What comes next</span>
+      </div>
+      <div class="mod-cta">Start Module →</div>
+      <div class="mod-progress-bar"><div class="mod-progress-fill" id="prog-m3" style="width:0%"></div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ========== MODULE VIEW ========== -->
+<div class="view" id="view-module">
+  <div class="mod-view-wrap" id="modContent"></div>
+</div>
+
+<!-- ========== TUTOR ========== -->
+<div class="view" id="view-tutor">
+  <div class="tutor-wrap">
+    <div style="margin-bottom:28px">
+      <div class="home-eyebrow">AI Tutor</div>
+      <h2 style="font-family:'Fraunces',serif;font-weight:900;font-size:2rem;letter-spacing:-1px;margin-bottom:8px">Ask anything.</h2>
+      <p style="color:var(--muted);font-size:0.95rem">Based on what you just learned. No stupid questions.</p>
+    </div>
+    <div class="tutor-win">
+      <div class="tutor-head"><div class="tutor-dot"></div>Tutor — Live</div>
+      <div class="tutor-msgs" id="tutorMsgs">
+        <div class="tmsg ai">You've finished a module. What do you want to dig into? Ask me anything about prompting, workflows, or agents.</div>
+      </div>
+      <div class="tutor-input-row">
+        <input class="tutor-input" id="tutorInput" placeholder="Type a question..." onkeydown="if(event.key==='Enter')sendTutor()">
+        <button class="btn btn-primary-m2" onclick="sendTutor()" id="tutorSendBtn">Send</button>
+      </div>
+    </div>
+    <div class="sq-wrap" id="suggestedQs"></div>
+    <div class="flex-row mt24">
+      <button class="btn btn-ghost" onclick="goHome()">← Back to Modules</button>
+      <button class="btn btn-primary-m3" onclick="checkCompletion()">See My Progress →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ========== CERT ========== -->
+<div class="view" id="view-cert">
+  <div class="cert-wrap">
+    <div class="cert-card">
+      <div class="cert-icon">🎓</div>
+      <div class="cert-h">Course Complete.</div>
+      <div class="cert-sub">You went from writing prompts manually to understanding how intelligent systems are built. That's a real level-up.</div>
+      <div class="cert-modules" id="certModules"></div>
+      <button class="btn btn-primary-m1" onclick="openModule(currentMod || 1)">Review a Module</button>
+      <div class="cert-next">Next step: open Make.com, connect Claude API, and build your first real workflow this week.</div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ======================================================
+//  COURSE DATA
+// ======================================================
+const MODULES = {
+  1: {
+    title: "Prompt Engineering",
+    sub: "Write prompts that actually work. Every time.",
+    color: "m1",
+    accent: "var(--m1)",
+    btnClass: "btn-primary-m1",
+    calloutClass: "callout-orange",
+    stepClass: "s-m1",
+    lessons: [
+      {
+        tag: "How AI Actually Thinks",
+        title: "The AI isn't understanding you. It's predicting you.",
+        content: `
+          <p>When you type a prompt, the AI doesn't "understand" it the way a person would. It's a language model, which means it has one job: predict the most likely next token (word fragment) given everything it's seen.</p>
+          <p>It was trained on billions of pieces of human writing. So when you write a prompt, it pattern-matches against all of that training data and generates the most statistically likely useful response.</p>
+          <div class="callout callout-orange">
+            <div class="cl">Why this matters</div>
+            If your prompt is vague, the AI defaults to the most average, generic response in its training data. The more specific your prompt, the more it can narrow down to the response you actually want. Specificity is your leverage.
+          </div>
+          <p>This also explains why AI is so good at tasks that have lots of examples in human writing (blog posts, emails, code) and less reliable on tasks that are genuinely novel or require real-world knowledge it wasn't trained on.</p>
+          <div class="callout callout-neutral">
+            <div class="cl">One sentence summary</div>
+            The AI is a very sophisticated autocomplete. Your job as a prompt writer is to set up the autocomplete so it finishes in exactly the direction you want.
+          </div>
+        `,
+        quiz: { q: "Why does a vague prompt produce a generic response?", opts: ["The AI is being lazy","The AI defaults to the most average pattern in its training data","The AI needs more tokens to work with","Vague prompts confuse the safety filters"], correct: 1, explain: "The model narrows its output based on the specificity of your input. Less context means it draws from the broadest, most common patterns in training." }
+      },
+      {
+        tag: "Prompt Structure",
+        title: "Every good prompt has the same four parts.",
+        content: `
+          <p>You don't need to use all four every time, but knowing all four means you know exactly which part to fix when a prompt isn't working.</p>
+          <div class="steps">
+            <div class="step"><div class="step-num s-m1">1</div><div class="step-text"><strong>Role / Persona</strong><span>Who should the AI be? "You are a senior copywriter who writes for African professionals." This sets the voice and expertise level.</span></div></div>
+            <div class="step"><div class="step-num s-m1">2</div><div class="step-text"><strong>Task / Instruction</strong><span>What exactly must it do? Be specific. "Write a LinkedIn post" is weaker than "Write a 150-word first-person LinkedIn post about why prompting is a skill."</span></div></div>
+            <div class="step"><div class="step-num s-m1">3</div><div class="step-text"><strong>Context / Input</strong><span>What does it need to know? The topic, the audience, relevant background, constraints, tone. The more context, the better the output.</span></div></div>
+            <div class="step"><div class="step-num s-m1">4</div><div class="step-text"><strong>Output Format</strong><span>What should the result look like? A bullet list? A paragraph? Under 200 words? Include a hook? Define the shape of what you want.</span></div></div>
+          </div>
+          <div class="callout callout-orange">
+            <div class="cl">Example</div>
+            <strong>Weak:</strong> "Write a post about AI tools."<br><br>
+            <strong>Strong:</strong> "You are a professional content writer. Write a 150-word LinkedIn post aimed at South African professionals about why learning to use AI tools is a competitive advantage. Use first person, no emojis, end with a question to drive comments."
+          </div>
+          <p>The strong version has all four parts. You can feel the difference instantly.</p>
+        `,
+        quiz: { q: "What's the weakest part of this prompt: 'Write something about automation'?", opts: ["It's too long","It has no role, no context, no output format, and the task is vague","It will confuse the AI","It's actually fine"], correct: 1, explain: "This prompt gives the AI nothing to narrow its output with. Role, context, and format are all missing. The AI will give you the most average response it can." }
+      },
+      {
+        tag: "Tone & Persona",
+        title: "The AI will write in your voice if you tell it what that is.",
+        content: `
+          <p>By default the AI writes in a generic, slightly formal, slightly American voice. That's not your voice. You can change this entirely just by describing it.</p>
+          <div class="callout callout-orange">
+            <div class="cl">How to describe your voice</div>
+            Include a line in your system prompt or at the top of your prompt like: "My writing style is direct and conversational. I use short sentences. I don't use fluff or filler words. I'm candid and sometimes use humor. I write for a South African professional audience."
+          </div>
+          <p>You can also give it examples. Paste in a paragraph you've written that you like and say: "Write in a style similar to this." That's called a style reference, and it's one of the most powerful moves in prompting.</p>
+          <p>For content you're creating across platforms (LinkedIn, TikTok, X, blogs), the smartest thing to do is write one "voice document" and paste it at the top of every prompt. One document, used everywhere.</p>
+          <div class="steps">
+            <div class="step"><div class="step-num s-m1">1</div><div class="step-text"><strong>Write your voice document once</strong><span>3-5 sentences describing how you write. Tone, rhythm, what you avoid, who you're writing for.</span></div></div>
+            <div class="step"><div class="step-num s-m1">2</div><div class="step-text"><strong>Save it somewhere accessible</strong><span>Google Docs, Notion, a pinned note. Anywhere fast to grab.</span></div></div>
+            <div class="step"><div class="step-num s-m1">3</div><div class="step-text"><strong>Paste it into any content prompt</strong><span>Before your actual instruction. The AI reads it all as one context block.</span></div></div>
+          </div>
+        `,
+        quiz: { q: "What's the fastest way to get the AI to match your writing style?", opts: ["Keep prompting until it sounds right","Tell the AI your style in a short description or paste in an example of your writing","Use a longer prompt","Ask it to write formally"], correct: 1, explain: "Describing your voice, or giving an example, is far more efficient than trial and error. The AI adjusts immediately." }
+      },
+      {
+        tag: "Advanced Techniques",
+        title: "Few-shot examples and chain of thought.",
+        content: `
+          <p>Two techniques that make an immediate difference, both are simple to use.</p>
+          <p><strong>Few-shot prompting</strong> means giving the AI examples of what you want before asking it to do the task. Instead of just saying "write a LinkedIn hook," you show it two or three hooks you like, then ask for a new one in that style.</p>
+          <div class="callout callout-orange">
+            <div class="cl">Few-shot structure</div>
+            "Here are three LinkedIn hooks I like:<br>
+            Hook 1: [example]<br>
+            Hook 2: [example]<br>
+            Hook 3: [example]<br><br>
+            Now write 5 more hooks in the same style, about the topic of AI workflow automation."
+          </div>
+          <p><strong>Chain of thought</strong> means asking the AI to think through a problem step by step before giving you the answer. This is especially useful for anything complex, analytical, or where you've been getting shallow answers.</p>
+          <div class="callout callout-neutral">
+            <div class="cl">How to trigger it</div>
+            Add "Think step by step before answering" or "Walk me through your reasoning first" to your prompt. The AI slows down and produces noticeably better output on complex tasks.
+          </div>
+          <p>Combined: use few-shot for creative or format-specific outputs, and chain of thought for anything analytical, strategic, or multi-part.</p>
+        `,
+        quiz: { q: "When is chain of thought most useful?", opts: ["When you want a short answer","For complex, analytical, or multi-step tasks where shallow answers keep appearing","For creative writing","For grammar checking"], correct: 1, explain: "Chain of thought pushes the model to reason before concluding. On complex tasks it measurably improves output quality." }
+      },
+      {
+        tag: "Templates & Reuse",
+        title: "Stop rewriting prompts. Build a template library.",
+        content: `
+          <p>Once you've found a prompt that works, save it. A prompt template is just a saved prompt with a placeholder where the variable input goes.</p>
+          <div class="callout callout-orange">
+            <div class="cl">Template example</div>
+            "You are a professional content strategist writing for South African professionals. Write a 150-word LinkedIn post in first person about [TOPIC]. Use a strong opening hook. Be direct. No emojis. End with a question. No filler words."<br><br>
+            Every time you use it, replace [TOPIC] with your actual topic.
+          </div>
+          <p>Build a library with at least these five templates to start:</p>
+          <div class="chip-grid">
+            <div class="chip"><strong>LinkedIn Post</strong><span>Your format, your voice, your constraints</span></div>
+            <div class="chip"><strong>TikTok Script</strong><span>Hook, content, CTA structure</span></div>
+            <div class="chip"><strong>Blog Intro</strong><span>Hook + first 150 words formula</span></div>
+            <div class="chip"><strong>X Thread</strong><span>Opening tweet + 5 body tweets</span></div>
+            <div class="chip"><strong>Repurpose</strong><span>Turn [FORMAT] into [OTHER FORMAT]</span></div>
+          </div>
+          <p>Once these are saved, your content creation time drops dramatically. You're not writing prompts anymore, you're filling in blanks.</p>
+          <div class="callout callout-neutral">
+            <div class="cl">Where to store them</div>
+            Notion, Google Docs, or a simple text file. The format doesn't matter, accessibility does. You should be able to grab any template in under 10 seconds.
+          </div>
+        `,
+        quiz: { q: "What's the core structure of a prompt template?", opts: ["A prompt with emoji placeholders","A saved prompt with a [VARIABLE] where the changing input goes","A prompt shared on GitHub","A system prompt saved in Claude settings"], correct: 1, explain: "Templates are reusable prompts. The variable placeholder (like [TOPIC]) is swapped out each time. Everything else stays the same." }
+      }
+    ],
+    tutorContext: "The student just completed Module 1 on Prompt Engineering covering: how LLMs work (statistical prediction), the four-part prompt structure (role, task, context, format), tone and voice documents, few-shot prompting, chain of thought, and building a prompt template library. They are a South African professional content creator who already writes prompts for LinkedIn, TikTok, AI images, and blogs."
+  },
+  2: {
+    title: "AI Workflow Automation",
+    sub: "Set it up once. Let it run.",
+    color: "m2",
+    accent: "var(--m2)",
+    btnClass: "btn-primary-m2",
+    calloutClass: "callout-blue",
+    stepClass: "s-m2",
+    lessons: [
+      {
+        tag: "The Problem",
+        title: "You're doing manually what a machine should be doing.",
+        content: `
+          <p>Right now your AI workflow probably looks like this: think of a topic, open Claude, write a prompt, get the output, copy it, paste it somewhere, format it, go post it. Repeat this for every platform. Every day.</p>
+          <p>Every manual step in that chain is a step a workflow can eliminate. Workflow automation isn't about removing your creativity or judgment. It's about removing the repetitive execution around it.</p>
+          <div class="callout callout-blue">
+            <div class="cl">The shift in thinking</div>
+            Manual mode: You are the connector between tools.<br>
+            Automation mode: The tools connect to each other. You show up to make creative decisions.
+          </div>
+          <p>This is why automation is the natural next step after prompting. Your prompts are the brain of the system. Automation is the nervous system that carries instructions between tools automatically.</p>
+          <div class="callout callout-neutral">
+            <div class="cl">Real example</div>
+            You add a topic to a Google Sheet on Monday morning. By the time you've made coffee, Claude has written LinkedIn, TikTok, and blog versions. They're waiting in a Notion doc for you to review. You didn't touch anything except the original idea.
+          </div>
+        `,
+        quiz: { q: "What does workflow automation replace?", opts: ["Your creativity and decision-making","The repetitive manual execution between tools","The AI model itself","Your content strategy"], correct: 1, explain: "Automation handles the plumbing, not the thinking. Your prompts, your strategy, and your review remain yours." }
+      },
+      {
+        tag: "Core Concepts",
+        title: "Triggers, Actions, and Data passing.",
+        content: `
+          <p>Every automation ever built, regardless of how complex, is made of these same pieces.</p>
+          <div class="steps">
+            <div class="step"><div class="step-num s-m2">T</div><div class="step-text"><strong>Trigger</strong><span>The event that starts the workflow. A new row in a spreadsheet. An email arriving. A scheduled time (every morning at 7am). A form being submitted.</span></div></div>
+            <div class="step"><div class="step-num s-m2">A</div><div class="step-text"><strong>Action</strong><span>What happens as a result. Call the Claude API. Post to Notion. Send a Slack message. Create a Google Doc. Save to a database. Each action is one task.</span></div></div>
+            <div class="step"><div class="step-num s-m2">D</div><div class="step-text"><strong>Data passing</strong><span>The output of one step becomes the input of the next. The topic from the spreadsheet goes into the Claude prompt. Claude's output goes into the Notion doc. Data flows forward through the chain.</span></div></div>
+          </div>
+          <div class="callout callout-blue">
+            <div class="cl">Chain example</div>
+            Trigger (Sheet row added) → Action (Send topic to Claude API) → Action (Receive Claude's output) → Action (Create Notion page with output) → Done.
+          </div>
+          <p>That's it. No matter how complex a workflow looks, it's always just triggers and actions chained together, passing data between steps.</p>
+        `,
+        quiz: { q: "What is 'data passing' in a workflow?", opts: ["Sending your data to a third party","The output of one step becoming the input of the next","Exporting your workflow as a file","Logging what the AI said"], correct: 1, explain: "Data flows forward through the chain. This is how multi-step workflows stay connected. Each action receives data from the previous one." }
+      },
+      {
+        tag: "The Tools",
+        title: "Make, n8n, Zapier: what to use and when.",
+        content: `
+          <p>You don't need to learn all of these. Pick one and stay with it until you've built at least five workflows. Here's what you need to know to choose.</p>
+          <table class="compare-table">
+            <tr><th>Platform</th><th>Best for</th><th>Free tier</th><th>Learning curve</th></tr>
+            <tr><td><strong>Make</strong></td><td>Visual, powerful, flexible. Best starting point.</td><td>1000 ops/month</td><td>Low-Medium</td></tr>
+            <tr><td><strong>n8n</strong></td><td>Developers, self-hostable, no ops limits if self-hosted.</td><td>Yes (limited)</td><td>Medium</td></tr>
+            <tr><td><strong>Zapier</strong></td><td>Easiest, most integrations, but most expensive.</td><td>100 tasks/month</td><td>Low</td></tr>
+            <tr><td><strong>Pabbly</strong></td><td>Best value, lifetime deal pricing.</td><td>Limited</td><td>Low-Medium</td></tr>
+          </table>
+          <div class="callout callout-blue">
+            <div class="cl">Recommendation</div>
+            Start with <strong>Make</strong>. It has a generous free tier, a visual canvas that makes logic easy to see, and it connects natively to Claude API, Google Sheets, Notion, Gmail, Slack, and hundreds of other tools. Everything you need is there.
+          </div>
+          <p>Once you've built three or four workflows in Make, you'll understand the concepts well enough to use any automation platform. They all speak the same language.</p>
+        `,
+        quiz: { q: "Why is Make recommended as a starting point?", opts: ["It's the cheapest option available","It has a visual canvas, generous free tier, and connects to the tools you already use","It's the most powerful technically","It requires no account setup"], correct: 1, explain: "Make combines visual workflow building with a solid free tier and broad integrations including Claude API. That's the right combination for beginners." }
+      },
+      {
+        tag: "Calling an API",
+        title: "The Claude API is just a URL you send a message to.",
+        content: `
+          <p>An API (Application Programming Interface) sounds technical. In practice it's this: you send a request to a web address (a URL), with some data attached, and you get a response back. That's the whole thing.</p>
+          <p>When you use Claude in Make, you're sending your prompt to the Claude API URL, and Claude sends back the generated text. Make handles all the technical parts. You just configure it.</p>
+          <div class="steps">
+            <div class="step"><div class="step-num s-m2">1</div><div class="step-text"><strong>Get an API key</strong><span>Go to console.anthropic.com. Create a key. This is your password for using Claude via automation.</span></div></div>
+            <div class="step"><div class="step-num s-m2">2</div><div class="step-text"><strong>Add an HTTP module in Make</strong><span>Make has a built-in HTTP module that lets you call any API. Select it and point it at the Claude API URL.</span></div></div>
+            <div class="step"><div class="step-num s-m2">3</div><div class="step-text"><strong>Set up your prompt</strong><span>In the request body, you include your prompt template. The variable data (like the topic from your sheet) gets inserted automatically by Make.</span></div></div>
+            <div class="step"><div class="step-num s-m2">4</div><div class="step-text"><strong>Map the output</strong><span>Claude's response comes back as text. You map that output to whatever comes next in your workflow. A Notion page, a Google Doc, an email draft.</span></div></div>
+          </div>
+          <div class="callout callout-blue">
+            <div class="cl">The Claude API URL</div>
+            https://api.anthropic.com/v1/messages — that's where you send your prompt. Make fills in the authentication header automatically once you paste in your API key.
+          </div>
+        `,
+        quiz: { q: "What does an API key do?", opts: ["It encrypts your prompts","It authenticates your calls so the API knows who's sending requests","It speeds up the AI response","It's only for developers"], correct: 1, explain: "An API key identifies you when making programmatic requests. It's like a password for machine-to-machine communication." }
+      },
+      {
+        tag: "Your First Workflow",
+        title: "Build this exact workflow this week.",
+        content: `
+          <p>This is the one to build first. Simple enough to finish in one sitting. Complex enough to teach you everything you need to know.</p>
+          <div class="callout callout-blue">
+            <div class="cl">Workflow: Topic In → Draft Out</div>
+            You add a content topic to a Google Sheet. Make detects the new row, sends the topic to Claude with your prompt template, Claude writes a LinkedIn post, Make saves the draft to a Notion page. Done.
+          </div>
+          <div class="steps">
+            <div class="step"><div class="step-num s-m2">1</div><div class="step-text"><strong>Create the Google Sheet</strong><span>Two columns: Topic (column A), Status (column B). The trigger watches for new rows in column A.</span></div></div>
+            <div class="step"><div class="step-num s-m2">2</div><div class="step-text"><strong>Set up the trigger in Make</strong><span>Google Sheets module → "Watch Rows." Connect your account. Select the sheet. Set it to check every 15 minutes.</span></div></div>
+            <div class="step"><div class="step-num s-m2">3</div><div class="step-text"><strong>Add the Claude API call</strong><span>HTTP module. POST to the Claude API URL. Your prompt template in the body, with {{topic}} where the row data goes in.</span></div></div>
+            <div class="step"><div class="step-num s-m2">4</div><div class="step-text"><strong>Save output to Notion</strong><span>Notion module → "Create a Page." Map Claude's response text to the page body. Add the topic as the page title.</span></div></div>
+            <div class="step"><div class="step-num s-m2">5</div><div class="step-text"><strong>Test it</strong><span>Add a topic to the Sheet. Wait for the trigger interval. Check Notion for your draft. First time it works is genuinely exciting.</span></div></div>
+          </div>
+          <p>Once this works, you have the mental model. Every other workflow is a variation of this one.</p>
+        `,
+        quiz: { q: "What is the trigger in the Topic In → Draft Out workflow?", opts: ["Claude generating text","A scheduled timer running hourly","A new row being added to a Google Sheet","You pressing a button in Make"], correct: 2, explain: "The trigger is the event that starts the workflow. A new Google Sheet row fires Make, which then kicks off the rest of the chain." }
+      }
+    ],
+    tutorContext: "The student just completed Module 2 on AI Workflow Automation covering: why manual content execution should be automated, the trigger/action/data-passing model, a comparison of Make vs n8n vs Zapier, how the Claude API works, and step-by-step instructions to build a Google Sheet to Claude to Notion content pipeline. They are a South African professional who creates content daily across LinkedIn, TikTok, X, Facebook, and their blog."
+  },
+  3: {
+    title: "AI Agents",
+    sub: "AI that decides, not just executes.",
+    color: "m3",
+    accent: "var(--m3)",
+    btnClass: "btn-primary-m3",
+    calloutClass: "callout-green",
+    stepClass: "s-m3",
+    lessons: [
+      {
+        tag: "Workflows vs Agents",
+        title: "A workflow follows a script. An agent improvises.",
+        content: `
+          <p>In a workflow, every step is defined by you in advance. Trigger → Action 1 → Action 2 → Done. The path never changes. That's the strength and the limit of workflows.</p>
+          <p>An agent is different. You give it a goal, and it figures out the steps to get there. It can use tools, read information, make decisions, hit dead ends, try another path, and eventually produce a result. You don't define every step. You define the objective.</p>
+          <div class="callout callout-green">
+            <div class="cl">The key difference</div>
+            <strong>Workflow:</strong> "Every morning at 7am, take the topic from column A, send it to Claude, save the result to Notion."<br><br>
+            <strong>Agent:</strong> "Research the top 3 trending AI topics today, write a LinkedIn post on the most relevant one for my audience, check if I've already covered it this week, and if not, save the draft."
+          </div>
+          <p>The workflow executes a fixed recipe. The agent navigates toward a goal. The agent is doing things a workflow simply can't do, like searching the web, checking prior content, or deciding what to write about.</p>
+        `,
+        quiz: { q: "What's the key thing an agent can do that a workflow can't?", opts: ["Run faster","Make decisions mid-task based on what it finds","Call the Claude API","Connect to Google Sheets"], correct: 1, explain: "Agents can branch, decide, and adapt. Workflows follow a fixed path. The difference is decision-making capability mid-run." }
+      },
+      {
+        tag: "Tools & Memory",
+        title: "An agent is only as capable as its tools.",
+        content: `
+          <p>An AI agent without tools is just a chatbot. What makes an agent powerful is the set of tools it can call on to take action in the world. A tool is anything the agent can use: a web search, a file reader, a database lookup, an API call, a calculator.</p>
+          <div class="callout callout-green">
+            <div class="cl">How tools work</div>
+            The agent is given a list of available tools and descriptions of what each one does. When it needs information or needs to take action, it calls the relevant tool, receives the result, and continues reasoning. This loop repeats until the task is done.
+          </div>
+          <p><strong>Common tools given to agents:</strong></p>
+          <div class="chip-grid">
+            <div class="chip"><strong>Web Search</strong><span>Find current information online</span></div>
+            <div class="chip"><strong>File Read/Write</strong><span>Access and create documents</span></div>
+            <div class="chip"><strong>Code Executor</strong><span>Run Python or JS code</span></div>
+            <div class="chip"><strong>Browser Control</strong><span>Navigate and interact with websites</span></div>
+            <div class="chip"><strong>API Calls</strong><span>Talk to any external service</span></div>
+            <div class="chip"><strong>Memory Store</strong><span>Save and recall information across sessions</span></div>
+          </div>
+          <p><strong>Memory</strong> is a separate concept. By default, an AI has no memory between sessions. An agent with a memory tool can store information and retrieve it later, so it can remember things like what content you've already created, what your preferences are, or what worked well last time.</p>
+        `,
+        quiz: { q: "Why does an agent need tools?", opts: ["To make responses longer","To take actions in the world beyond just generating text","To avoid hallucinations","To be cheaper to run"], correct: 1, explain: "Without tools, an agent can only generate text. Tools let it search, read, write, calculate, and interact with external systems." }
+      },
+      {
+        tag: "The ReAct Pattern",
+        title: "How an agent actually thinks: Reason, then Act.",
+        content: `
+          <p>ReAct (Reason + Act) is the core loop that most agents use. It's a simple pattern once you see it.</p>
+          <div class="steps">
+            <div class="step"><div class="step-num s-m3">1</div><div class="step-text"><strong>Receive the goal</strong><span>"Research the top AI trend today and write me a LinkedIn post about it."</span></div></div>
+            <div class="step"><div class="step-num s-m3">2</div><div class="step-text"><strong>Reason</strong><span>The agent thinks: "To do this, I first need to know what's trending. I should use the web search tool."</span></div></div>
+            <div class="step"><div class="step-num s-m3">3</div><div class="step-text"><strong>Act</strong><span>It calls the web search tool. Gets results back. Reads them.</span></div></div>
+            <div class="step"><div class="step-num s-m3">4</div><div class="step-text"><strong>Reason again</strong><span>"The top trend appears to be [X]. Now I have enough context to write the post."</span></div></div>
+            <div class="step"><div class="step-num s-m3">5</div><div class="step-text"><strong>Act again</strong><span>Writes the LinkedIn post. Returns the result.</span></div></div>
+          </div>
+          <div class="callout callout-green">
+            <div class="cl">The loop keeps going</div>
+            The agent can reason and act as many times as it needs until it reaches the goal or decides it can't complete the task. Each action gives it more information to reason with.
+          </div>
+          <p>This is fundamentally different from a workflow, which has no reasoning step. A workflow just executes. An agent thinks about what to do next based on what it just found.</p>
+        `,
+        quiz: { q: "In the ReAct pattern, what happens after an action?", opts: ["The task ends","The agent reports back to you","The agent reasons again based on the result of the action","The agent waits for a new trigger"], correct: 2, explain: "ReAct is a loop. Reason → Act → Reason → Act. Each action's result feeds back into the next reasoning step." }
+      },
+      {
+        tag: "Real Examples",
+        title: "Agents you can use right now, without coding.",
+        content: `
+          <p>You don't need to build an agent from scratch. Several tools give you agent-like capabilities out of the box. Here's what's practical today.</p>
+          <div class="chip-grid">
+            <div class="chip"><strong>Claude (with tools)</strong><span>Give Claude web search and file tools. It plans and executes multi-step research tasks for you.</span></div>
+            <div class="chip"><strong>Perplexity</strong><span>A search-first AI that automatically finds, reads, and synthesises current information before answering.</span></div>
+            <div class="chip"><strong>Make AI agents</strong><span>Make now has agent modules. You define a goal, give it tools, and it navigates the workflow itself.</span></div>
+            <div class="chip"><strong>n8n AI Agent node</strong><span>Drop an AI agent node into any n8n workflow. It reasons through sub-tasks automatically.</span></div>
+            <div class="chip"><strong>Claude Code</strong><span>An agent specifically for coding tasks. Reads your codebase, makes decisions, writes and edits files.</span></div>
+          </div>
+          <div class="callout callout-green">
+            <div class="cl">Practical starting point</div>
+            Use Claude in claude.ai with web search enabled. Give it a goal rather than just a prompt. Notice how it searches, reads results, reasons, and synthesises rather than just answering from memory. That's an agent in action. You're already using one.
+          </div>
+          <p>The leap from "using agents" to "building agents" is real but not huge. Understanding how they work (which you now do) is the prerequisite for building with them.</p>
+        `,
+        quiz: { q: "What makes using Claude with web search enabled 'agent-like'?", opts: ["It's faster than regular Claude","It searches the web, reads results, reasons, and synthesises rather than just answering from memory","It writes better code","It has no token limit"], correct: 1, explain: "When Claude uses a tool like web search, reasons about the result, and decides what to do next, that's the ReAct pattern running. It's an agent behaviour." }
+      },
+      {
+        tag: "What Comes Next",
+        title: "The full map. Where you are, where you're going.",
+        content: `
+          <p>You've now covered the three foundational layers. Here's how they connect and what comes after.</p>
+          <div class="steps">
+            <div class="step"><div class="step-num s-m3">L1</div><div class="step-text"><strong>Manual Prompting</strong><span>Writing prompts and using output manually. Starting point. Most people stop here.</span></div></div>
+            <div class="step"><div class="step-num s-m3">L2</div><div class="step-text"><strong>Prompt Engineering</strong><span>Structured, reusable, intentional prompts. Template libraries. Voice documents. Module 1 of this course. You now have this.</span></div></div>
+            <div class="step"><div class="step-num s-m3">L3</div><div class="step-text"><strong>AI Workflow Automation</strong><span>Prompts running automatically, connected to other tools. Pipelines. Module 2. You now have this.</span></div></div>
+            <div class="step"><div class="step-num s-m3">L4</div><div class="step-text"><strong>AI Agents</strong><span>AI that reasons and decides, not just executes. Module 3. You now have this.</span></div></div>
+            <div class="step"><div class="step-num s-m3">L5</div><div class="step-text"><strong>Evals & Optimization</strong><span>Measuring whether your prompts and agents are actually working. Systematic improvement. Next frontier.</span></div></div>
+            <div class="step"><div class="step-num s-m3">L6</div><div class="step-text"><strong>Building AI Products</strong><span>Wrapping everything in a usable interface. Real tools, real users. That's a business.</span></div></div>
+          </div>
+          <div class="callout callout-green">
+            <div class="cl">Your immediate next move</div>
+            This week: open Make, connect Google Sheets and Claude API, build the content draft workflow from Module 2. That one workflow will make everything from Modules 1, 2, and 3 click into place in a way no amount of reading can.
+          </div>
+          <p>One thing that is never not relevant: the ability to write a clear, specific, well-structured prompt. That's Layer 2. Every layer above it depends on it. You built a real foundation.</p>
+        `,
+        quiz: { q: "What's the most practical next step after completing this course?", opts: ["Study LangChain documentation","Take another online course first","Build the Google Sheet to Claude to Notion workflow in Make this week","Wait until you feel more confident"], correct: 2, explain: "Building the workflow applies everything from all three modules simultaneously. Reading and understanding is step one. Building is step two, and step two is where the knowledge actually sticks." }
+      }
+    ],
+    tutorContext: "The student just completed Module 3 on AI Agents covering: agents vs workflows (decision-making capability), tools and memory, the ReAct (Reason + Act) loop, practical agent tools available today without coding, and the full 6-layer progression map. They have now completed all three modules of this AI course covering prompt engineering, workflow automation, and agents."
+  }
+};
+
+// ======================================================
+//  STATE
+// ======================================================
+let currentMod = null;
+let currentLessonIdx = 0;
+let modProgress = { 1: 0, 2: 0, 3: 0 };
+let currentTutorContext = "";
+
+// ======================================================
+//  NAVIGATION
+// ======================================================
+function showView(id) {
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  document.getElementById('view-' + id).classList.add('active');
+  document.getElementById('backBtn').classList.toggle('show', id !== 'home');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+  updateGlobalProgress();
+}
+
+function goHome() { showView('home'); }
+
+function openModule(n) {
+  currentMod = n;
+  currentLessonIdx = 0;
+  showView('module');
+  renderLesson();
+}
+
+// ======================================================
+//  PROGRESS
+// ======================================================
+function updateGlobalProgress() {
+  const totalLessons = Object.values(MODULES).reduce((a, m) => a + m.lessons.length, 0);
+  const done = Object.values(modProgress).reduce((a, b) => a + b, 0);
+  const pct = Math.round((done / totalLessons) * 100);
+  document.getElementById('globalFill').style.width = pct + '%';
+  document.getElementById('globalPct').textContent = pct + '%';
+  Object.keys(MODULES).forEach(k => {
+    const m = MODULES[k];
+    const p = Math.round((modProgress[k] / m.lessons.length) * 100);
+    const el = document.getElementById('prog-m' + k);
+    if (el) el.style.width = p + '%';
+  });
+}
+
+// ======================================================
+//  LESSON RENDERER
+// ======================================================
+function renderLesson() {
+  const mod = MODULES[currentMod];
+  const lesson = mod.lessons[currentLessonIdx];
+  const total = mod.lessons.length;
+  const accentClass = mod.color;
+
+  if (modProgress[currentMod] < currentLessonIdx + 1) modProgress[currentMod] = currentLessonIdx + 1;
+  updateGlobalProgress();
+
+  const dots = mod.lessons.map((_, i) => {
+    const cls = i < currentLessonIdx ? 'done' : i === currentLessonIdx ? 'active-dot' : '';
+    return `<div class="ldn ${cls}" onclick="jumpLesson(${i})"></div>`;
+  }).join('');
+
+  const isLast = currentLessonIdx === total - 1;
+  const nextLabel = isLast ? 'Talk to the Tutor →' : 'Next Lesson →';
+
+  const quizHtml = lesson.quiz ? buildInlineQuiz(lesson.quiz, currentLessonIdx) : '';
+
+  const content = `
+    <div class="mod-view-header">
+      <div class="mod-view-eyebrow mv-${accentClass}">Module 0${currentMod} — ${mod.title}</div>
+      <h2 class="mod-view-h2">${mod.sub}</h2>
+      <p class="mod-view-sub">${mod.desc || ''}</p>
+    </div>
+    <div class="lesson-dot-nav mv-${accentClass}">${dots}</div>
+    <div class="lesson-nav-row">
+      <div class="lesson-label">Lesson ${currentLessonIdx + 1} of ${total}</div>
+      <div class="flex-row">
+        <button class="btn btn-ghost" onclick="prevLesson()" ${currentLessonIdx === 0 ? 'disabled' : ''}>← Prev</button>
+        <button class="btn ${mod.btnClass}" onclick="nextLesson()">${nextLabel}</button>
+      </div>
+    </div>
+    <div class="lesson-card">
+      <div class="lc-head">
+        <div class="lc-tag mv-${accentClass}">${lesson.tag}</div>
+        <h3 class="lc-h3">${lesson.title}</h3>
+      </div>
+      <div class="lc-body">${lesson.content}${quizHtml}</div>
+    </div>
+    ${isLast ? `<div class="tc mt24"><button class="btn ${mod.btnClass}" onclick="openTutor()">Module Complete — Ask the Tutor →</button></div>` : ''}
+  `;
+
+  document.getElementById('modContent').innerHTML = content;
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function buildInlineQuiz(q, idx) {
+  const id = `iq-${currentMod}-${idx}`;
+  return `
+    <div class="inline-quiz">
+      <div class="iq-q">Quick check: ${q.q}</div>
+      <div class="iq-opts" id="${id}-opts">
+        ${q.opts.map((o, i) => `
+          <label class="iq-opt" id="${id}-opt-${i}">
+            <input type="radio" name="${id}" value="${i}" onchange="checkIQ('${id}',${i},${q.correct},'${encodeURIComponent(q.explain)}')"> ${o}
+          </label>
+        `).join('')}
+      </div>
+      <div class="iq-reveal" id="${id}-reveal"></div>
+    </div>
+  `;
+}
+
+function checkIQ(id, chosen, correct, explainEnc) {
+  const explain = decodeURIComponent(explainEnc);
+  document.querySelectorAll(`#${id}-opts .iq-opt`).forEach(el => {
+    el.style.pointerEvents = 'none';
+    const v = parseInt(el.querySelector('input').value);
+    if (v === correct) el.classList.add('right');
+    else if (v === chosen && chosen !== correct) el.classList.add('wrong');
+  });
+  const rev = document.getElementById(`${id}-reveal`);
+  rev.textContent = explain;
+  rev.classList.add('show');
+}
+
+function jumpLesson(i) { currentLessonIdx = i; renderLesson(); }
+function prevLesson() { if (currentLessonIdx > 0) { currentLessonIdx--; renderLesson(); } }
+function nextLesson() {
+  const mod = MODULES[currentMod];
+  if (currentLessonIdx < mod.lessons.length - 1) { currentLessonIdx++; renderLesson(); }
+  else openTutor();
+}
+
+// ======================================================
+//  TUTOR
+// ======================================================
+const SUGGESTED = {
+  1: ["What's the most common prompting mistake?","How do I write a voice document?","Give me a few-shot example for LinkedIn","When should I use chain of thought?"],
+  2: ["What's the first workflow I should actually build?","How do I get a Claude API key?","What's the difference between Make and Zapier?","How does data passing work in Make?"],
+  3: ["Give me a real agent use case for content creation","What's the difference between an agent and a chatbot?","How do I give Claude tools in Make?","What's a memory store and do I need one?"]
+};
+
+function openTutor() {
+  currentTutorContext = MODULES[currentMod].tutorContext;
+  const msgs = document.getElementById('tutorMsgs');
+  msgs.innerHTML = `<div class="tmsg ai">You've just finished <strong>${MODULES[currentMod].title}</strong>. What do you want to dig into? Ask me anything.</div>`;
+  const sq = document.getElementById('suggestedQs');
+  sq.innerHTML = (SUGGESTED[currentMod] || []).map(q => `<div class="sq" onclick="askSuggested('${encodeURIComponent(q)}')">${q}</div>`).join('');
+  showView('tutor');
+}
+
+function askSuggested(enc) {
+  document.getElementById('tutorInput').value = decodeURIComponent(enc);
+  sendTutor();
+}
+
+async function sendTutor() {
+  const input = document.getElementById('tutorInput');
+  const msg = input.value.trim();
+  if (!msg) return;
+  input.value = '';
+  addTutorMsg(msg, 'user');
+  const loading = addTutorMsg('Thinking...', 'ai loading');
+  document.getElementById('tutorSendBtn').disabled = true;
+
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 1000,
+        system: `You are a concise, no-nonsense AI course tutor. ${currentTutorContext} Answer questions clearly, in plain language, with practical examples. No fluff. No generic AI enthusiasm. Be direct and occasionally dry. South African/African context examples welcome. Never start with "Great question". Keep answers under 200 words unless a longer answer is genuinely needed.`,
+        messages: [{ role: 'user', content: msg }]
+      })
+    });
+    const data = await res.json();
+    loading.remove();
+    const reply = data.content?.map(b => b.text || '').join('') || 'Something went wrong, try again.';
+    addTutorMsg(reply, 'ai');
+  } catch(e) {
+    loading.remove();
+    addTutorMsg('Connection issue. Please try again.', 'ai');
+  }
+  document.getElementById('tutorSendBtn').disabled = false;
+}
+
+function addTutorMsg(text, cls) {
+  const c = document.getElementById('tutorMsgs');
+  const d = document.createElement('div');
+  d.className = 'tmsg ' + cls;
+  d.textContent = text;
+  c.appendChild(d);
+  c.scrollTop = c.scrollHeight;
+  return d;
+}
+
+// ======================================================
+//  COMPLETION CHECK
+// ======================================================
+function checkCompletion() {
+  const totalLessons = Object.values(MODULES).reduce((a, m) => a + m.lessons.length, 0);
+  const done = Object.values(modProgress).reduce((a, b) => a + b, 0);
+  if (done >= totalLessons) {
+    renderCert();
+    showView('cert');
+  } else {
+    goHome();
+  }
+}
+
+function renderCert() {
+  document.getElementById('certModules').innerHTML = Object.entries(MODULES).map(([k, m]) => `
+    <div class="cert-mod">
+      <div class="cert-check">✓</div>
+      <div><strong>Module 0${k}: ${m.title}</strong><br><span style="font-size:0.8rem;color:var(--muted)">${m.lessons.length} lessons complete</span></div>
+    </div>
+  `).join('');
+}
+
+// init
+updateGlobalProgress();
+</script>
+</body>
+</html>
