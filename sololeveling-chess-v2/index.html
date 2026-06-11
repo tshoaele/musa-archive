@@ -1,0 +1,1199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+  <title>Solo Leveling: Cartenon Temple</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;700&family=Share+Tech+Mono&display=swap');
+
+    :root {
+      --bg: #030303;
+      --cyan: #00c3ff;
+      --cyan2: #4fe3ff;
+      --danger: #ff2b2b;
+      --gold: #ffd166;
+      --text: #eaf6ff;
+      --muted: rgba(234,246,255,0.6);
+      --panel: rgba(0,15,30,0.92);
+      --shadow: 0 0 28px rgba(0,195,255,0.3);
+      --font: 'Rajdhani', sans-serif;
+      --mono: 'Share Tech Mono', monospace;
+    }
+
+    html, body { height: 100%; margin: 0; overflow: hidden; background: var(--bg); font-family: var(--font); color: var(--text); }
+    canvas { display: block; }
+
+    #hud { position: absolute; inset: 0; pointer-events: none; z-index: 10; }
+
+    /* ── Notification ── */
+    #notification {
+      position: absolute;
+      top: 10%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: var(--panel);
+      border: 1px solid rgba(0,195,255,0.5);
+      box-shadow: var(--shadow);
+      padding: 11px 22px;
+      border-radius: 12px;
+      font-weight: 700;
+      letter-spacing: 2px;
+      font-size: 13px;
+      text-transform: uppercase;
+      opacity: 0;
+      transition: opacity 200ms ease, transform 200ms ease;
+      transform: translate(-50%, calc(-50% + 10px));
+      backdrop-filter: blur(10px);
+      white-space: nowrap;
+      pointer-events: none;
+    }
+    #notification.active { opacity: 1; transform: translate(-50%, -50%); }
+    #notification.danger { border-color: rgba(255,43,43,0.7); color: var(--danger); }
+    #notification.gold { border-color: rgba(255,209,102,0.7); color: var(--gold); }
+
+    /* ── Status Bar ── */
+    #statusbar {
+      position: absolute;
+      left: 16px;
+      bottom: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 14px;
+      background: rgba(0,10,20,0.7);
+      border: 1px solid rgba(234,246,255,0.1);
+      border-radius: 999px;
+      backdrop-filter: blur(10px);
+      font-size: 12px;
+      font-family: var(--mono);
+      letter-spacing: 1px;
+    }
+
+    #turn-indicator { color: var(--cyan2); }
+    #hint { color: var(--muted); max-width: 380px; line-height: 1.4; }
+
+    /* ── Capture Log ── */
+    #capture-log {
+      position: absolute;
+      right: 16px;
+      bottom: 16px;
+      width: 200px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      align-items: flex-end;
+    }
+    .capture-entry {
+      font-family: var(--mono);
+      font-size: 10px;
+      color: var(--muted);
+      opacity: 0;
+      transform: translateX(10px);
+      transition: opacity 300ms ease, transform 300ms ease;
+      letter-spacing: 1px;
+    }
+    .capture-entry.show { opacity: 1; transform: translateX(0); }
+
+    /* ── Move count top right ── */
+    #move-counter {
+      position: absolute;
+      top: 16px;
+      right: 16px;
+      font-family: var(--mono);
+      font-size: 11px;
+      color: var(--muted);
+      letter-spacing: 2px;
+    }
+
+    /* ── Undo Button ── */
+    #undo-btn {
+      position: absolute;
+      bottom: 16px;
+      left: 50%;
+      transform: translateX(-50%);
+      pointer-events: all;
+      background: rgba(0,10,20,0.7);
+      border: 1px solid rgba(234,246,255,0.15);
+      color: var(--muted);
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: 2px;
+      padding: 7px 18px;
+      border-radius: 999px;
+      cursor: pointer;
+      transition: border-color 200ms, color 200ms;
+      backdrop-filter: blur(10px);
+    }
+    #undo-btn:hover { border-color: var(--cyan); color: var(--cyan2); }
+    #undo-btn:disabled { opacity: 0.3; cursor: default; }
+
+    /* ── Game Over Overlay ── */
+    #gameover {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background: rgba(0,0,0,0.78);
+      backdrop-filter: blur(12px);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 600ms ease;
+      z-index: 20;
+    }
+    #gameover.show { opacity: 1; pointer-events: all; }
+    #gameover-title {
+      font-size: clamp(36px, 6vw, 72px);
+      font-weight: 700;
+      letter-spacing: 8px;
+      text-transform: uppercase;
+      margin-bottom: 12px;
+    }
+    #gameover-sub {
+      font-family: var(--mono);
+      font-size: 13px;
+      color: var(--muted);
+      letter-spacing: 3px;
+      margin-bottom: 36px;
+    }
+    #restart-btn {
+      pointer-events: all;
+      background: transparent;
+      border: 1px solid rgba(0,195,255,0.5);
+      color: var(--cyan2);
+      font-family: var(--mono);
+      font-size: 13px;
+      letter-spacing: 3px;
+      padding: 12px 32px;
+      cursor: pointer;
+      transition: background 200ms, box-shadow 200ms;
+      text-transform: uppercase;
+    }
+    #restart-btn:hover {
+      background: rgba(0,195,255,0.1);
+      box-shadow: 0 0 20px rgba(0,195,255,0.3);
+    }
+
+    /* Vignette */
+    #vignette {
+      position: absolute;
+      inset: -20%;
+      background: radial-gradient(closest-side, rgba(0,0,0,0) 50%, rgba(0,0,0,0.65) 100%);
+      pointer-events: none;
+    }
+
+    /* Screen shake */
+    @keyframes shake {
+      0%,100% { transform: translate(0,0); }
+      20% { transform: translate(-4px, 2px); }
+      40% { transform: translate(4px, -3px); }
+      60% { transform: translate(-3px, 4px); }
+      80% { transform: translate(3px, -2px); }
+    }
+    body.shake { animation: shake 350ms ease; }
+  </style>
+</head>
+<body>
+
+<div id="hud" aria-hidden="true">
+  <div id="notification">INITIALIZING...</div>
+
+  <div id="statusbar">
+    <div class="pill" id="turn-indicator">STATUS: SURVIVAL</div>
+    <div class="pill" id="hint">Select a blue piece, then click a square to move.</div>
+  </div>
+
+  <div id="capture-log"></div>
+  <div id="move-counter">MOVE: 0</div>
+  <button id="undo-btn" disabled>↩ UNDO</button>
+  <div id="vignette"></div>
+</div>
+
+<div id="gameover">
+  <div id="gameover-title">VICTORY</div>
+  <div id="gameover-sub">THE SYSTEM ACKNOWLEDGES YOUR POWER</div>
+  <button id="restart-btn">ENTER THE DUNGEON AGAIN</button>
+</div>
+
+<script type="module">
+import * as THREE from 'https://cdn.skypack.dev/three@0.136.0';
+import { OrbitControls } from 'https://cdn.skypack.dev/three@0.136.0/examples/jsm/controls/OrbitControls.js';
+
+// ═══════════════════════════════════════════
+// CONSTANTS
+// ═══════════════════════════════════════════
+const TILE = 1.25, GAP = 0.10, STEP = TILE + GAP, BOARD = 8;
+const BOARD_HALF = (BOARD - 1) * STEP * 0.5;
+
+const C = {
+  bg: 0x020202, fog: 0x020202,
+  tileA: 0x0d0d0f, tileB: 0x181819,
+  player: 0x0088ff, playerEmit: 0x001833,
+  enemy: 0x3a3a3e, enemyEmit: 0x1a0000,
+  select: 0x4fe3ff, valid: 0x00c3ff,
+  danger: 0xff2b2b, check: 0xff6600, gold: 0xffd166
+};
+
+const TYPES = { K:'King', Q:'Queen', R:'Rook', B:'Bishop', N:'Knight', P:'Pawn' };
+
+// ═══════════════════════════════════════════
+// DOM
+// ═══════════════════════════════════════════
+const notifEl = document.getElementById('notification');
+const statusEl = document.getElementById('turn-indicator');
+const hintEl = document.getElementById('hint');
+const captureLog = document.getElementById('capture-log');
+const moveCounter = document.getElementById('move-counter');
+const undoBtn = document.getElementById('undo-btn');
+const gameoverEl = document.getElementById('gameover');
+const gameoverTitle = document.getElementById('gameover-title');
+const gameoverSub = document.getElementById('gameover-sub');
+
+let notifTimer;
+const notify = (text, type = '') => {
+  notifEl.textContent = `[ ${text} ]`;
+  notifEl.className = 'active' + (type ? ` ${type}` : '');
+  clearTimeout(notifTimer);
+  notifTimer = setTimeout(() => notifEl.classList.remove('active'), 2600);
+};
+
+const setStatus = t => statusEl.textContent = `STATUS: ${t}`;
+const setHint = t => hintEl.textContent = t;
+
+let logEntries = [];
+const logCapture = (who, piece) => {
+  if (logEntries.length > 5) { logEntries[0].remove(); logEntries.shift(); }
+  const el = document.createElement('div');
+  el.className = 'capture-entry';
+  el.textContent = `${who} captured ${piece}`;
+  captureLog.appendChild(el);
+  logEntries.push(el);
+  requestAnimationFrame(() => el.classList.add('show'));
+};
+
+const screenShake = () => {
+  document.body.classList.remove('shake');
+  void document.body.offsetWidth;
+  document.body.classList.add('shake');
+  setTimeout(() => document.body.classList.remove('shake'), 400);
+};
+
+// ═══════════════════════════════════════════
+// SCENE
+// ═══════════════════════════════════════════
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(C.bg);
+scene.fog = new THREE.Fog(C.fog, 8, 28);
+
+const camera = new THREE.PerspectiveCamera(60, innerWidth/innerHeight, 0.1, 220);
+camera.position.set(0, 11, 14);
+
+const renderer = new THREE.WebGLRenderer({ antialias: true });
+renderer.setSize(innerWidth, innerHeight);
+renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+renderer.outputEncoding = THREE.sRGBEncoding;
+renderer.shadowMap.enabled = true;
+renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+document.body.appendChild(renderer.domElement);
+
+const controls = new OrbitControls(camera, renderer.domElement);
+controls.enableDamping = true;
+controls.dampingFactor = 0.08;
+controls.minDistance = 6;
+controls.maxDistance = 26;
+controls.maxPolarAngle = Math.PI * 0.48;
+controls.target.set(0, 0.6, 0);
+
+// ── Lighting ──
+scene.add(new THREE.AmbientLight(0x5f7080, 0.38));
+
+const key = new THREE.DirectionalLight(0xffffff, 0.65);
+key.position.set(7, 10, 6);
+key.castShadow = true;
+key.shadow.mapSize.set(2048, 2048);
+key.shadow.camera.near = 0.5;
+key.shadow.camera.far = 60;
+[-16,16].forEach(v => {key.shadow.camera.left = v; key.shadow.camera.right = -v;});
+key.shadow.camera.left = -16; key.shadow.camera.right = 16;
+key.shadow.camera.top = 16; key.shadow.camera.bottom = -16;
+scene.add(key);
+
+const redEyes = new THREE.PointLight(0xff1100, 1.4, 24, 2);
+redEyes.position.set(0, 6.2, -10.5);
+scene.add(redEyes);
+
+const cyanFill = new THREE.PointLight(0x00c3ff, 0.3, 22, 2);
+cyanFill.position.set(-10, 4, 8);
+scene.add(cyanFill);
+
+// Floor
+const floor = new THREE.Mesh(
+  new THREE.PlaneGeometry(100, 100),
+  new THREE.MeshStandardMaterial({ color: 0x050505, roughness: 0.98 })
+);
+floor.rotation.x = -Math.PI/2; floor.position.y = -0.01; floor.receiveShadow = true;
+scene.add(floor);
+
+// ═══════════════════════════════════════════
+// TEMPLE DRESSING
+// ═══════════════════════════════════════════
+const temple = new THREE.Group();
+scene.add(temple);
+
+const stoneMat = new THREE.MeshStandardMaterial({ color: 0x0a0a0b, roughness: 0.93, metalness: 0.05 });
+
+const buildPillar = (x, z) => {
+  const g = new THREE.Group();
+  [[0.95,1.08,0.55],[0.75,0.85,7.2],[1.05,0.95,0.55]].forEach((p,i) => {
+    const m = new THREE.Mesh(new THREE.CylinderGeometry(p[0],p[1],p[2],10), stoneMat);
+    m.position.set(x, i===0?0.27:i===1?0.55+p[2]/2:0.55+7.2+0.27, z);
+    m.castShadow = m.receiveShadow = true;
+    g.add(m);
+  });
+  g.rotation.y = (Math.random()-0.5)*0.08;
+  return g;
+};
+
+for (let z = -14; z <= 14; z += 6) {
+  temple.add(buildPillar(-10.5, z));
+  temple.add(buildPillar(10.5, z));
+}
+
+// Back wall + arch
+const bwm = (geo, x,y,z) => { const m = new THREE.Mesh(geo, stoneMat); m.position.set(x,y,z); m.castShadow=m.receiveShadow=true; return m; };
+temple.add(bwm(new THREE.BoxGeometry(28,10,1.2), 0,5,-18.5));
+temple.add(bwm(new THREE.BoxGeometry(1.2,10,36), -14,5,-2));
+const rw = bwm(new THREE.BoxGeometry(1.2,10,36), 14,5,-2); temple.add(rw);
+
+const archMesh = new THREE.Mesh(new THREE.TorusGeometry(6.2,0.35,14,48,Math.PI), stoneMat);
+archMesh.position.set(0,7.2,-17.7); archMesh.rotation.z = Math.PI; temple.add(archMesh);
+
+// Statue
+const statueMat = new THREE.MeshStandardMaterial({ color: 0x040404, roughness: 0.98 });
+const statue = new THREE.Group();
+[
+  [new THREE.BoxGeometry(5.6,1.2,3.2), 0,0.6,-14.8],
+  [new THREE.BoxGeometry(3.2,4.0,1.8), 0,3.2,-14.8],
+  [new THREE.SphereGeometry(0.95,18,14), 0,5.8,-14.8],
+  [new THREE.ConeGeometry(1.05,1.25,8), 0,7.0,-14.8],
+].forEach(([g,x,y,z]) => {
+  const m = new THREE.Mesh(g, statueMat); m.position.set(x,y,z);
+  m.castShadow = true; statue.add(m);
+});
+const armG = new THREE.BoxGeometry(0.9,3.2,0.9);
+const aL = new THREE.Mesh(armG, statueMat); aL.position.set(-2.4,3.5,-14.8); aL.rotation.z=0.35;
+const aR = aL.clone(); aR.position.x=2.4; aR.rotation.z=-0.35;
+statue.add(aL, aR);
+temple.add(statue);
+
+const eyeMat = new THREE.MeshStandardMaterial({ color:0xff0000, emissive:0xff0000, emissiveIntensity:2.5, roughness:0.2 });
+const eyeG = new THREE.SphereGeometry(0.09,12,10);
+[-0.25,0.25].forEach(ex => { const e = new THREE.Mesh(eyeG, eyeMat); e.position.set(ex,5.75,-13.9); temple.add(e); });
+
+// ═══════════════════════════════════════════
+// BOARD
+// ═══════════════════════════════════════════
+const boardGroup = new THREE.Group();
+scene.add(boardGroup);
+const squares = [];
+
+const toWorld = (x, z) => ({ x: x*STEP - BOARD_HALF, z: z*STEP - BOARD_HALF });
+
+for (let x = 0; x < BOARD; x++) {
+  for (let z = 0; z < BOARD; z++) {
+    const mat = new THREE.MeshStandardMaterial({
+      color: (x+z)%2===0 ? C.tileA : C.tileB,
+      roughness: 0.93, metalness: 0.04
+    });
+    const sq = new THREE.Mesh(new THREE.BoxGeometry(TILE, 0.18, TILE), mat);
+    const w = toWorld(x,z);
+    sq.position.set(w.x, 0, w.z);
+    sq.receiveShadow = true;
+    sq.userData = { x, z, isSquare: true };
+    boardGroup.add(sq); squares.push(sq);
+  }
+}
+
+// Frame rails
+const frameMat = new THREE.MeshStandardMaterial({ color: 0x060606, roughness: 0.95 });
+const frameOff = (BOARD*STEP)*0.5;
+const frameLen = BOARD*STEP + 0.6;
+[
+  [new THREE.BoxGeometry(frameLen, 0.26, 0.35), 0, -0.02, frameOff],
+  [new THREE.BoxGeometry(frameLen, 0.26, 0.35), 0, -0.02, -frameOff],
+  [new THREE.BoxGeometry(0.35, 0.26, frameLen), frameOff, -0.02, 0],
+  [new THREE.BoxGeometry(0.35, 0.26, frameLen), -frameOff, -0.02, 0],
+].forEach(([g,x,y,z]) => {
+  const m = new THREE.Mesh(g, frameMat); m.position.set(x,y,z); m.receiveShadow=true; scene.add(m);
+});
+
+// ═══════════════════════════════════════════
+// PIECE GEOMETRY
+// ═══════════════════════════════════════════
+const makePieceGeo = (type) => {
+  switch(type) {
+    case 'King':   return new THREE.CylinderGeometry(0.30,0.50,1.55,8);
+    case 'Queen':  return new THREE.CylinderGeometry(0.25,0.46,1.40,8);
+    case 'Rook':   return new THREE.CylinderGeometry(0.32,0.40,1.05,8);
+    case 'Bishop': return new THREE.CylinderGeometry(0.20,0.40,1.20,8);
+    case 'Knight': return new THREE.BoxGeometry(0.52,1.0,0.52);
+    case 'Pawn':
+    default:       return new THREE.CylinderGeometry(0.22,0.32,0.80,8);
+  }
+};
+
+// ═══════════════════════════════════════════
+// PARTICLE SYSTEM
+// ═══════════════════════════════════════════
+const particleGroup = new THREE.Group();
+scene.add(particleGroup);
+const activeParticles = [];
+
+const spawnParticles = (pos, color, count = 22) => {
+  const geo = new THREE.SphereGeometry(0.06, 5, 5);
+  const mat = new THREE.MeshBasicMaterial({ color, transparent: true, opacity: 1 });
+  for (let i = 0; i < count; i++) {
+    const p = new THREE.Mesh(geo.clone(), mat.clone());
+    p.position.copy(pos);
+    const speed = 0.04 + Math.random() * 0.08;
+    const theta = Math.random() * Math.PI * 2;
+    const phi = Math.random() * Math.PI;
+    p.userData.vel = new THREE.Vector3(
+      Math.sin(phi)*Math.cos(theta)*speed,
+      (0.04 + Math.random()*0.1),
+      Math.sin(phi)*Math.sin(theta)*speed
+    );
+    p.userData.life = 1.0;
+    p.userData.decay = 0.018 + Math.random()*0.015;
+    particleGroup.add(p);
+    activeParticles.push(p);
+  }
+};
+
+const updateParticles = () => {
+  for (let i = activeParticles.length - 1; i >= 0; i--) {
+    const p = activeParticles[i];
+    p.userData.life -= p.userData.decay;
+    if (p.userData.life <= 0) {
+      particleGroup.remove(p);
+      activeParticles.splice(i, 1);
+      continue;
+    }
+    p.position.add(p.userData.vel);
+    p.userData.vel.y -= 0.002;
+    p.material.opacity = p.userData.life;
+  }
+};
+
+// Dust particles (ambient)
+const dustGeo = new THREE.BufferGeometry();
+const dustCount = 120;
+const dustPos = new Float32Array(dustCount * 3);
+const dustVel = [];
+for (let i = 0; i < dustCount; i++) {
+  dustPos[i*3]   = (Math.random()-0.5)*22;
+  dustPos[i*3+1] = Math.random()*5;
+  dustPos[i*3+2] = (Math.random()-0.5)*22;
+  dustVel.push(new THREE.Vector3((Math.random()-0.5)*0.005, 0.002+Math.random()*0.003, (Math.random()-0.5)*0.005));
+}
+dustGeo.setAttribute('position', new THREE.BufferAttribute(dustPos, 3));
+const dustMat = new THREE.PointsMaterial({ color: 0x334455, size: 0.06, transparent: true, opacity: 0.5 });
+const dustPoints = new THREE.Points(dustGeo, dustMat);
+scene.add(dustPoints);
+
+// ═══════════════════════════════════════════
+// FOG PLANES
+// ═══════════════════════════════════════════
+const fogGroup = new THREE.Group();
+scene.add(fogGroup);
+const fogPlanes = [];
+const makeNoiseTex = (sz=192) => {
+  const d = new Uint8Array(sz*sz);
+  for (let i = 0; i < d.length; i++) d[i] = Math.floor(Math.random()*256);
+  const t = new THREE.DataTexture(d, sz, sz, THREE.LuminanceFormat);
+  t.needsUpdate = true; t.wrapS = t.wrapT = THREE.RepeatWrapping;
+  t.minFilter = t.magFilter = THREE.LinearFilter;
+  return t;
+};
+const fogTex = makeNoiseTex();
+[
+  [1.2, -2.5, 1.0, 0.08],
+  [2.2, -7.0, 1.15, 0.06],
+  [3.0, -12.0, 1.3, 0.05],
+].forEach(([y,z,sc,op]) => {
+  const mat = new THREE.MeshBasicMaterial({ color:0x9fdcff, transparent:true, opacity:op, depthWrite:false, blending:THREE.AdditiveBlending, map:fogTex.clone() });
+  const p = new THREE.Mesh(new THREE.PlaneGeometry(46,26), mat);
+  p.rotation.x = -Math.PI/2.15; p.position.set(0,y,z); p.scale.set(sc,sc,sc);
+  fogGroup.add(p); fogPlanes.push(p);
+});
+
+// ═══════════════════════════════════════════
+// GAME STATE
+// ═══════════════════════════════════════════
+const piecesGroup = new THREE.Group();
+scene.add(piecesGroup);
+
+const occupancy = new Map(); // "x,z" -> piece mesh
+const key2 = (x,z) => `${x},${z}`;
+
+let selectedPiece = null;
+let hoveredSquare = null;
+let moveCount = 0;
+let playerTurn = true;
+let gameOver = false;
+let enemyThinking = false;
+let undoStack = [];
+
+const highlightedSquares = new Set();
+
+const makePiece = (x, z, type, isEnemy) => {
+  const geo = makePieceGeo(type);
+  const h = geo.parameters?.height ?? 0.85;
+  const mat = new THREE.MeshStandardMaterial({
+    color: isEnemy ? C.enemy : C.player,
+    emissive: isEnemy ? C.enemyEmit : C.playerEmit,
+    emissiveIntensity: isEnemy ? 0.0 : 0.45,
+    roughness: 0.32, metalness: 0.28
+  });
+  const mesh = new THREE.Mesh(geo, mat);
+  const w = toWorld(x,z);
+  mesh.position.set(w.x, h*0.5+0.12, w.z);
+  mesh.castShadow = true;
+  mesh.userData = { x, z, type, isEnemy, baseH: h, baseEmit: mat.emissiveIntensity };
+  piecesGroup.add(mesh);
+  occupancy.set(key2(x,z), mesh);
+  return mesh;
+};
+
+const removePiece = (piece) => {
+  if (!piece) return;
+  piecesGroup.remove(piece);
+  for (const [k,v] of occupancy.entries()) { if (v===piece) { occupancy.delete(k); break; } }
+};
+
+// ── Initial Layout ──
+const initBoard = () => {
+  // Clear
+  while (piecesGroup.children.length) piecesGroup.remove(piecesGroup.children[0]);
+  occupancy.clear();
+  selectedPiece = null;
+  moveCount = 0;
+  playerTurn = true;
+  gameOver = false;
+  enemyThinking = false;
+  undoStack = [];
+  undoBtn.disabled = true;
+  clearAllHighlights();
+
+  // Enemy (top, z=0..1) - standard chess row
+  const backRow = ['Rook','Knight','Bishop','Queen','King','Bishop','Knight','Rook'];
+  backRow.forEach((t,i) => makePiece(i, 0, t, true));
+  for (let i=0;i<8;i++) makePiece(i, 1, 'Pawn', true);
+
+  // Player (bottom, z=6..7)
+  for (let i=0;i<8;i++) makePiece(i, 6, 'Pawn', false);
+  backRow.forEach((t,i) => makePiece(i, 7, t, false));
+
+  setStatus('YOUR MOVE'); setHint('Select a blue piece to move.');
+  moveCounter.textContent = 'MOVE: 0';
+  notify('THE TRIALS BEGIN. SURVIVE OR PERISH.', '');
+};
+
+// ═══════════════════════════════════════════
+// MOVE VALIDATION
+// ═══════════════════════════════════════════
+const getPseudoMoves = (piece, occ = occupancy) => {
+  const { x, z, type, isEnemy } = piece.userData;
+  const moves = [];
+  const dir = isEnemy ? 1 : -1; // enemy moves down (z+), player moves up (z-)
+
+  const inBounds = (nx,nz) => nx>=0&&nx<BOARD&&nz>=0&&nz<BOARD;
+  const isAlly  = (nx,nz) => { const t=occ.get(key2(nx,nz)); return t && t.userData.isEnemy===isEnemy; };
+  const isOpp   = (nx,nz) => { const t=occ.get(key2(nx,nz)); return t && t.userData.isEnemy!==isEnemy; };
+
+  const slide = (dxArr, dzArr) => {
+    for (let d=0; d<dxArr.length; d++) {
+      for (let step=1; step<BOARD; step++) {
+        const nx=x+dxArr[d]*step, nz=z+dzArr[d]*step;
+        if (!inBounds(nx,nz)) break;
+        if (isAlly(nx,nz)) break;
+        moves.push({x:nx,z:nz});
+        if (isOpp(nx,nz)) break;
+      }
+    }
+  };
+
+  const jump = (offsets) => {
+    offsets.forEach(([dx,dz]) => {
+      const nx=x+dx, nz=z+dz;
+      if (inBounds(nx,nz) && !isAlly(nx,nz)) moves.push({x:nx,z:nz});
+    });
+  };
+
+  switch(type) {
+    case 'Pawn': {
+      // Forward
+      const fz = z+dir;
+      if (inBounds(x,fz) && !occ.get(key2(x,fz))) {
+        moves.push({x,z:fz});
+        // Double push from start row
+        const startRow = isEnemy ? 1 : 6;
+        if (z===startRow) {
+          const fz2=z+dir*2;
+          if (!occ.get(key2(x,fz2))) moves.push({x,z:fz2});
+        }
+      }
+      // Captures
+      [-1,1].forEach(dx => {
+        const nx=x+dx;
+        if (inBounds(nx,fz) && isOpp(nx,fz)) moves.push({x:nx,z:fz});
+      });
+      break;
+    }
+    case 'Knight': {
+      jump([[1,2],[2,1],[-1,2],[-2,1],[1,-2],[2,-1],[-1,-2],[-2,-1]]);
+      break;
+    }
+    case 'Bishop': slide([-1,-1,1,1],[-1,1,-1,1]); break;
+    case 'Rook':   slide([-1,1,0,0],[0,0,-1,1]); break;
+    case 'Queen':
+      slide([-1,1,0,0],[0,0,-1,1]);
+      slide([-1,-1,1,1],[-1,1,-1,1]);
+      break;
+    case 'King': {
+      jump([[-1,-1],[-1,0],[-1,1],[0,-1],[0,1],[1,-1],[1,0],[1,1]]);
+      break;
+    }
+  }
+  return moves;
+};
+
+const getValidMoves = (piece, occ = occupancy) => {
+  const pseudoMoves = getPseudoMoves(piece, occ);
+  const side = piece.userData.isEnemy;
+
+  // A legal chess move may not leave your own king in check.
+  return pseudoMoves.filter(mv => {
+    const simOcc = simMove(occ, piece, mv.x, mv.z);
+    return !isInCheck(side, simOcc);
+  });
+};
+
+const isValidMove = (piece, nx, nz) => {
+  const moves = getValidMoves(piece);
+  return moves.some(m => m.x===nx && m.z===nz);
+};
+
+const hasAnyMove = (isEnemySide, occ = occupancy) => {
+  for (const [,p] of occ.entries()) {
+    if (p.userData.isEnemy === isEnemySide && getValidMoves(p, occ).length) return true;
+  }
+  return false;
+};
+
+// Check if a side's king is in check
+const isInCheck = (isEnemy, occ = occupancy) => {
+  let kingPos = null;
+  for (const [k,p] of occ.entries()) {
+    if (p.userData.isEnemy===isEnemy && p.userData.type==='King') {
+      kingPos = { x:p.userData.x, z:p.userData.z };
+      break;
+    }
+  }
+  if (!kingPos) return false;
+  for (const [,p] of occ.entries()) {
+    if (p.userData.isEnemy===isEnemy) continue;
+    const moves = getPseudoMoves(p, occ);
+    if (moves.some(m=>m.x===kingPos.x&&m.z===kingPos.z)) return true;
+  }
+  return false;
+};
+
+// ═══════════════════════════════════════════
+// HIGHLIGHTING
+// ═══════════════════════════════════════════
+const clearAllHighlights = () => {
+  squares.forEach(sq => {
+    sq.material.emissive = sq.material.emissive || new THREE.Color(0);
+    sq.material.emissive.setHex(0);
+    sq.material.emissiveIntensity = 0;
+  });
+  highlightedSquares.clear();
+};
+
+const highlightSq = (sq, color, intensity = 0.5) => {
+  if (!sq) return;
+  sq.material.emissive.setHex(color);
+  sq.material.emissiveIntensity = intensity;
+  highlightedSquares.add(sq);
+};
+
+const showValidMoves = (piece) => {
+  clearAllHighlights();
+  const moves = getValidMoves(piece);
+  moves.forEach(({ x, z }) => {
+    const sq = squares.find(s => s.userData.x===x && s.userData.z===z);
+    if (sq) {
+      const hasEnemy = occupancy.get(key2(x,z));
+      highlightSq(sq, hasEnemy ? C.danger : C.valid, 0.45);
+    }
+  });
+  // Highlight selected piece's square
+  const selfSq = squares.find(s=>s.userData.x===piece.userData.x&&s.userData.z===piece.userData.z);
+  if (selfSq) highlightSq(selfSq, C.select, 0.65);
+};
+
+const setPieceGlow = (piece, on, color = null) => {
+  if (!piece) return;
+  if (on) {
+    piece.material.emissive.setHex(color ?? C.select);
+    piece.material.emissiveIntensity = 0.95;
+  } else {
+    piece.material.emissive.setHex(piece.userData.isEnemy ? C.enemyEmit : C.playerEmit);
+    piece.material.emissiveIntensity = piece.userData.baseEmit;
+  }
+};
+
+// ═══════════════════════════════════════════
+// EXECUTE MOVE
+// ═══════════════════════════════════════════
+const executeMove = (piece, nx, nz, forReal = true) => {
+  const fromKey = key2(piece.userData.x, piece.userData.z);
+  const toKey = key2(nx, nz);
+  const captured = occupancy.get(toKey);
+  let capturedType = null;
+
+  if (captured && captured !== piece) {
+    capturedType = captured.userData.type;
+    if (forReal) {
+      spawnParticles(captured.position.clone(), captured.userData.isEnemy ? 0x3a3a3e : 0x0088ff);
+      logCapture(piece.userData.isEnemy ? 'ENEMY' : 'PLAYER', capturedType);
+      if (capturedType === 'King') {
+        endGame(!piece.userData.isEnemy);
+      }
+    }
+    piecesGroup.remove(captured);
+    occupancy.delete(toKey);
+  }
+
+  occupancy.delete(fromKey);
+  occupancy.set(toKey, piece);
+
+  const w = toWorld(nx, nz);
+  piece.position.x = w.x;
+  piece.position.z = w.z;
+  piece.userData.x = nx;
+  piece.userData.z = nz;
+
+  // Pawn promotion
+  if (piece.userData.type === 'Pawn') {
+    if (!piece.userData.isEnemy && nz === 0) promotePawn(piece, false);
+    if (piece.userData.isEnemy && nz === 7) promotePawn(piece, true);
+  }
+
+  return capturedType;
+};
+
+const promotePawn = (piece, isEnemy) => {
+  piece.userData.type = 'Queen';
+  const newGeo = makePieceGeo('Queen');
+  piece.geometry.dispose();
+  piece.geometry = newGeo;
+  piece.position.y = newGeo.parameters.height * 0.5 + 0.12;
+  piece.material.color.setHex(isEnemy ? C.enemy : C.player);
+  if (!isEnemy) {
+    notify('PAWN PROMOTED TO QUEEN', 'gold');
+    spawnParticles(piece.position.clone(), C.gold, 30);
+  }
+};
+
+// ═══════════════════════════════════════════
+// PLAYER MOVE
+// ═══════════════════════════════════════════
+const doPlayerMove = (nx, nz) => {
+  if (!playerTurn || !selectedPiece || gameOver) return;
+  if (!isValidMove(selectedPiece, nx, nz)) {
+    notify('INVALID MOVE. THE SYSTEM DENIES.', 'danger');
+    screenShake();
+    return;
+  }
+
+  // Save undo state
+  const snapshot = snapshotState();
+
+  const captured = executeMove(selectedPiece, nx, nz);
+  if (gameOver) return;
+
+  moveCount++;
+  moveCounter.textContent = `MOVE: ${moveCount}`;
+
+  undoStack.push(snapshot);
+  undoBtn.disabled = undoStack.length === 0;
+
+  setPieceGlow(selectedPiece, false);
+  selectedPiece = null;
+  clearAllHighlights();
+
+  const inCk = isInCheck(true);
+  if (inCk && !hasAnyMove(true)) {
+    notify('CHECKMATE. THE SYSTEM FALLS.', 'gold');
+    endGame(true);
+    return;
+  } else if (!inCk && !hasAnyMove(true)) {
+    notify('ENEMY HAS NO MOVES. YOU WIN!', 'gold');
+    endGame(true);
+    return;
+  } else if (inCk) {
+    notify('CHECK! THE ENEMY RECOILS.', 'gold');
+    screenShake();
+  } else {
+    notify(captured ? `TARGET ELIMINATED.` : `POSITION UPDATED.`);
+  }
+
+  playerTurn = false;
+  setStatus('ENEMY CALCULATING...');
+  setHint('');
+  undoBtn.disabled = true;
+
+  setTimeout(doEnemyMove, 700 + Math.random()*400);
+};
+
+// ═══════════════════════════════════════════
+// ENEMY AI (Minimax depth 2)
+// ═══════════════════════════════════════════
+const pieceValue = { King:9000, Queen:900, Rook:500, Bishop:330, Knight:320, Pawn:100 };
+
+const evalBoard = (occ) => {
+  let score = 0;
+  for (const [,p] of occ.entries()) {
+    const v = pieceValue[p.userData.type] || 0;
+    score += p.userData.isEnemy ? v : -v;
+  }
+  return score;
+};
+
+// Clone occupancy for simulation
+const cloneOcc = (occ) => {
+  const m = new Map();
+  for (const [k,p] of occ.entries()) m.set(k, p);
+  return m;
+};
+
+const simMove = (occ, piece, nx, nz) => {
+  const newOcc = cloneOcc(occ);
+  const fromKey = key2(piece.userData.x, piece.userData.z);
+  const toKey = key2(nx, nz);
+  newOcc.delete(fromKey);
+  newOcc.delete(toKey);
+  // Create a fake piece data object
+  const fakePiece = { userData: { ...piece.userData, x:nx, z:nz } };
+  newOcc.set(toKey, fakePiece);
+  return newOcc;
+};
+
+const minimax = (occ, depth, isMaximizing, alpha, beta) => {
+  if (depth === 0) return evalBoard(occ);
+  const side = isMaximizing; // enemy is maximizer
+  let best = isMaximizing ? -Infinity : Infinity;
+
+  let foundMove = false;
+  for (const [,p] of occ.entries()) {
+    if (p.userData.isEnemy !== side) continue;
+    const moves = getValidMoves(p, occ);
+    for (const mv of moves) {
+      foundMove = true;
+      const newOcc = simMove(occ, p, mv.x, mv.z);
+      const score = minimax(newOcc, depth-1, !isMaximizing, alpha, beta);
+      if (isMaximizing) { best = Math.max(best, score); alpha = Math.max(alpha, score); }
+      else { best = Math.min(best, score); beta = Math.min(beta, score); }
+      if (beta <= alpha) return best;
+    }
+  }
+  if (!foundMove) return evalBoard(occ);
+  return best;
+};
+
+const doEnemyMove = () => {
+  if (gameOver) return;
+
+  // Collect all enemy pieces and their valid moves
+  let bestScore = -Infinity;
+  let bestMove = null;
+  let bestPieceMesh = null;
+
+  for (const [,p] of occupancy.entries()) {
+    if (!p.userData.isEnemy) continue;
+    const moves = getValidMoves(p, occupancy);
+    for (const mv of moves) {
+      const simOcc = simMove(occupancy, p, mv.x, mv.z);
+      const score = minimax(simOcc, 1, false, -Infinity, Infinity);
+      // Prefer captures with slight randomness
+      const jitter = (Math.random()-0.5)*15;
+      if (score+jitter > bestScore) {
+        bestScore = score+jitter;
+        bestMove = mv;
+        bestPieceMesh = p;
+      }
+    }
+  }
+
+  if (!bestPieceMesh || !bestMove) {
+    notify('ENEMY HAS NO MOVES. YOU WIN!', 'gold');
+    endGame(true);
+    return;
+  }
+
+  // Flash the piece before moving
+  setPieceGlow(bestPieceMesh, true, C.danger);
+  setTimeout(() => {
+    setPieceGlow(bestPieceMesh, false);
+    const captured = executeMove(bestPieceMesh, bestMove.x, bestMove.z);
+    if (gameOver) return;
+
+    const inCk = isInCheck(false);
+    if (inCk && !hasAnyMove(false)) {
+      notify('CHECKMATE. YOU HAVE FALLEN.', 'danger');
+      endGame(false);
+      return;
+    } else if (!inCk && !hasAnyMove(false)) {
+      notify('NO LEGAL MOVES. THE TRIAL ENDS.', 'gold');
+      endGame(true);
+      return;
+    } else if (inCk) {
+      notify('YOU ARE IN CHECK!', 'danger');
+      screenShake();
+    } else {
+      notify(captured ? `ENEMY ELIMINATED YOUR ${captured.toUpperCase()}.` : 'ENEMY MOVED. SURVIVE.', '');
+    }
+
+    playerTurn = true;
+    setStatus('YOUR MOVE');
+    setHint('Select a blue piece to move.');
+    undoBtn.disabled = undoStack.length === 0;
+  }, 380);
+};
+
+// ═══════════════════════════════════════════
+// GAME OVER
+// ═══════════════════════════════════════════
+const endGame = (playerWon) => {
+  gameOver = true;
+  gameoverTitle.textContent = playerWon ? 'VICTORY' : 'DEFEATED';
+  gameoverTitle.style.color = playerWon ? 'var(--gold)' : 'var(--danger)';
+  gameoverSub.textContent = playerWon
+    ? 'THE SYSTEM ACKNOWLEDGES YOUR POWER'
+    : 'YOU WERE NOT STRONG ENOUGH TO SURVIVE';
+  gameoverEl.classList.add('show');
+
+  if (!playerWon) screenShake();
+};
+
+// ═══════════════════════════════════════════
+// UNDO
+// ═══════════════════════════════════════════
+const snapshotState = () => {
+  const state = [];
+  for (const [,p] of occupancy.entries()) {
+    state.push({ x:p.userData.x, z:p.userData.z, type:p.userData.type, isEnemy:p.userData.isEnemy });
+  }
+  return state;
+};
+
+const restoreState = (snapshot) => {
+  // Rebuild pieces from plain state so undo works after captures and pawn promotion.
+  while (piecesGroup.children.length) {
+    const child = piecesGroup.children[0];
+    piecesGroup.remove(child);
+    child.geometry?.dispose?.();
+    child.material?.dispose?.();
+  }
+  occupancy.clear();
+  snapshot.forEach(({ x, z, type, isEnemy }) => makePiece(x, z, type, isEnemy));
+};
+
+undoBtn.addEventListener('click', () => {
+  if (undoStack.length === 0 || !playerTurn || gameOver) return;
+  const prev = undoStack.pop();
+  restoreState(prev);
+  selectedPiece = null;
+  clearAllHighlights();
+  moveCount = Math.max(0, moveCount-1);
+  moveCounter.textContent = `MOVE: ${moveCount}`;
+  undoBtn.disabled = undoStack.length === 0;
+  notify('MOVE UNDONE. TIME REVERSED.', '');
+});
+
+// ═══════════════════════════════════════════
+// INTERACTION
+// ═══════════════════════════════════════════
+const raycaster = new THREE.Raycaster();
+const mouse = new THREE.Vector2();
+let isDragging = false;
+let mouseDownPos = { x:0, y:0 };
+
+window.addEventListener('mousedown', e => {
+  mouseDownPos = { x:e.clientX, y:e.clientY };
+  isDragging = false;
+});
+
+window.addEventListener('mousemove', e => {
+  mouse.x = (e.clientX/innerWidth)*2 - 1;
+  mouse.y = -(e.clientY/innerHeight)*2 + 1;
+  const dx = e.clientX-mouseDownPos.x, dy = e.clientY-mouseDownPos.y;
+  if (Math.sqrt(dx*dx+dy*dy) > 5) isDragging = true;
+
+  // Hover square
+  raycaster.setFromCamera(mouse, camera);
+  const hits = raycaster.intersectObjects(squares, false);
+  const sq = hits.length ? hits[0].object : null;
+  if (sq !== hoveredSquare) {
+    hoveredSquare = sq;
+  }
+});
+
+window.addEventListener('click', e => {
+  if (isDragging || gameOver || !playerTurn) return;
+  mouse.x = (e.clientX/innerWidth)*2 - 1;
+  mouse.y = -(e.clientY/innerHeight)*2 + 1;
+  raycaster.setFromCamera(mouse, camera);
+
+  // Check pieces first
+  const pieceHits = raycaster.intersectObjects(piecesGroup.children, false);
+  if (pieceHits.length) {
+    const clicked = pieceHits[0].object;
+    if (clicked.userData.isEnemy) {
+      // Try to capture if piece selected
+      if (selectedPiece && isValidMove(selectedPiece, clicked.userData.x, clicked.userData.z)) {
+        doPlayerMove(clicked.userData.x, clicked.userData.z);
+      } else {
+        notify('THAT IS AN ENEMY PIECE.', 'danger');
+      }
+      return;
+    }
+    // Select player piece
+    if (selectedPiece) setPieceGlow(selectedPiece, false);
+    if (selectedPiece === clicked) {
+      selectedPiece = null; clearAllHighlights();
+      notify('SELECTION CLEARED.'); return;
+    }
+    selectedPiece = clicked;
+    setPieceGlow(selectedPiece, true);
+    showValidMoves(selectedPiece);
+    notify(`SELECTED: ${selectedPiece.userData.type}`);
+    return;
+  }
+
+  // Check squares
+  const sqHits = raycaster.intersectObjects(squares, false);
+  if (sqHits.length && selectedPiece) {
+    const { x, z } = sqHits[0].object.userData;
+    doPlayerMove(x, z);
+  }
+});
+
+// ═══════════════════════════════════════════
+// RESTART
+// ═══════════════════════════════════════════
+document.getElementById('restart-btn').addEventListener('click', () => {
+  gameoverEl.classList.remove('show');
+  while (piecesGroup.children.length) piecesGroup.remove(piecesGroup.children[0]);
+  logEntries.forEach(el => el.remove());
+  logEntries = [];
+  initBoard();
+});
+
+// ═══════════════════════════════════════════
+// INTRO CAMERA PAN
+// ═══════════════════════════════════════════
+let introDone = false;
+let introT = 0;
+const introDuration = 2.8;
+const introStart = new THREE.Vector3(0, 22, 22);
+const introEnd = new THREE.Vector3(0, 11, 14);
+camera.position.copy(introStart);
+
+// ═══════════════════════════════════════════
+// ANIMATION
+// ═══════════════════════════════════════════
+const clock = new THREE.Clock();
+
+const animate = () => {
+  requestAnimationFrame(animate);
+  const dt = clock.getDelta();
+  const t = clock.elapsedTime;
+
+  // Intro pan
+  if (!introDone) {
+    introT += dt;
+    const p = Math.min(introT / introDuration, 1);
+    const ease = 1 - Math.pow(1-p, 3);
+    camera.position.lerpVectors(introStart, introEnd, ease);
+    if (p >= 1) { introDone = true; notify('WELCOME, HUNTER. SURVIVE THE TEMPLE.'); }
+  }
+
+  controls.update();
+
+  // Player piece pulse
+  for (const p of piecesGroup.children) {
+    if (!p.userData.isEnemy && p !== selectedPiece) {
+      p.material.emissiveIntensity = 0.3 + Math.sin(t*3.0)*0.15;
+    }
+  }
+
+  // Piece hover lift
+  for (const p of piecesGroup.children) {
+    const h = p.userData.baseH ?? 0.85;
+    const baseY = h*0.5+0.12;
+    if (p === selectedPiece) {
+      p.position.y += (baseY + 0.25 - p.position.y) * 0.15;
+      p.rotation.y += 0.015;
+    } else {
+      p.position.y += (baseY - p.position.y) * 0.1;
+    }
+  }
+
+  // Red eyes flicker
+  redEyes.intensity = 1.2 + Math.sin(t*7.1)*0.18 + Math.sin(t*13.3)*0.08;
+
+  // Fog drift
+  fogPlanes.forEach((fp,i) => {
+    const s = 0.012 + i*0.007;
+    fp.material.map.offset.x = (t*s)%1;
+    fp.material.map.offset.y = (t*s*0.7)%1;
+    fp.position.x = Math.sin(t*(0.12+i*0.05))*(0.35+i*0.2);
+    fp.position.z = (-2.5-i*4.5) + Math.cos(t*(0.10+i*0.04))*(0.35+i*0.2);
+  });
+
+  // Dust particles
+  for (let i=0; i<dustCount; i++) {
+    dustPos[i*3]   = (dustPos[i*3]   + dustVel[i].x + 22) % 22 - 11;
+    dustPos[i*3+1] = (dustPos[i*3+1] + dustVel[i].y);
+    dustPos[i*3+2] = (dustPos[i*3+2] + dustVel[i].z + 22) % 22 - 11;
+    if (dustPos[i*3+1] > 6) { dustPos[i*3+1] = 0; }
+  }
+  dustGeo.attributes.position.needsUpdate = true;
+
+  updateParticles();
+  renderer.render(scene, camera);
+};
+
+// ── Go ──
+initBoard();
+animate();
+
+window.addEventListener('resize', () => {
+  camera.aspect = innerWidth/innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(innerWidth, innerHeight);
+});
+</script>
+</body>
+</html>
