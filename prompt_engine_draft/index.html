@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Anime Identity Prompt Generator</title>
+  <style>
+    :root {
+      --bg: #0b0d12;
+      --card: #151923;
+      --text: #f4f6fb;
+      --muted: #aab2c0;
+      --accent: #f5b84b;
+      --border: #2a3140;
+      --input: #0f131b;
+      --button: #f5b84b;
+      --buttonText: #15110a;
+    }
+
+    body.light {
+      --bg: #f5f6fa;
+      --card: #ffffff;
+      --text: #141821;
+      --muted: #596275;
+      --accent: #9b5cff;
+      --border: #d8dce6;
+      --input: #f1f3f7;
+      --button: #141821;
+      --buttonText: #ffffff;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.5;
+      padding: 18px;
+    }
+
+    .wrap {
+      max-width: 920px;
+      margin: 0 auto;
+    }
+
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 20px;
+    }
+
+    h1 {
+      font-size: clamp(1.7rem, 5vw, 3rem);
+      margin: 0 0 6px;
+      letter-spacing: -0.04em;
+    }
+
+    .subtitle {
+      color: var(--muted);
+      margin: 0;
+      max-width: 650px;
+    }
+
+    .toggle {
+      border: 1px solid var(--border);
+      background: var(--card);
+      color: var(--text);
+      padding: 10px 14px;
+      border-radius: 999px;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 18px;
+      box-shadow: 0 16px 40px rgba(0,0,0,.18);
+    }
+
+    label {
+      display: block;
+      margin: 12px 0 6px;
+      font-weight: 700;
+      font-size: .95rem;
+    }
+
+    input, select, textarea {
+      width: 100%;
+      border: 1px solid var(--border);
+      background: var(--input);
+      color: var(--text);
+      border-radius: 12px;
+      padding: 12px;
+      font-size: 1rem;
+      outline: none;
+    }
+
+    textarea {
+      min-height: 92px;
+      resize: vertical;
+    }
+
+    .buttons {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 16px;
+    }
+
+    button.primary, button.secondary {
+      border: 0;
+      padding: 12px 16px;
+      border-radius: 12px;
+      font-weight: 800;
+      cursor: pointer;
+      font-size: 1rem;
+    }
+
+    button.primary {
+      background: var(--button);
+      color: var(--buttonText);
+    }
+
+    button.secondary {
+      background: transparent;
+      color: var(--text);
+      border: 1px solid var(--border);
+    }
+
+    .output {
+      min-height: 420px;
+      white-space: pre-wrap;
+      background: var(--input);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 14px;
+      color: var(--text);
+      overflow-wrap: anywhere;
+    }
+
+    .hint {
+      color: var(--muted);
+      font-size: .92rem;
+      margin-top: 10px;
+    }
+
+    .pillrow {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 12px;
+    }
+
+    .pill {
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      padding: 6px 10px;
+      color: var(--muted);
+      font-size: .85rem;
+    }
+
+    @media (max-width: 780px) {
+      .grid { grid-template-columns: 1fr; }
+      header { align-items: flex-start; flex-direction: column; }
+      .toggle { width: 100%; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <div>
+        <h1>Anime Identity Prompt Generator</h1>
+        <p class="subtitle">Turn any anime or theme into a personalized character-sheet prompt using: personal context + theme + original character + power system + poster format + readable lore.</p>
+      </div>
+      <button class="toggle" id="themeToggle">Light mode</button>
+    </header>
+
+    <div class="grid">
+      <section class="card">
+        <h2>Build your prompt</h2>
+
+        <label for="theme">Anime / Theme</label>
+        <input id="theme" placeholder="Example: One Piece, Naruto, Bleach, Solo Leveling" value="One Piece" />
+
+        <label for="personalContext">Personal context / vibe</label>
+        <textarea id="personalContext" placeholder="Example: calm, strategic, masculine, freedom-seeking, powerful, mysterious">calm, strategic, masculine, powerful, self-made, freedom-seeking, emotionally controlled</textarea>
+
+        <label for="role">Character role / archetype</label>
+        <input id="role" placeholder="Example: pirate captain, rogue shinobi, shadow monarch" value="pirate captain" />
+
+        <label for="powerStyle">Power style</label>
+        <input id="powerStyle" placeholder="Example: maps, shadows, lightning, cursed energy, fire" value="maps, fate, direction, hidden paths, and future possibilities" />
+
+        <label for="posterFormat">Poster format</label>
+        <select id="posterFormat">
+          <option>vertical 9:16 character sheet</option>
+          <option>vertical 9:16 wanted poster</option>
+          <option>vertical 9:16 game menu screen</option>
+          <option>vertical 9:16 trading card</option>
+          <option>vertical 9:16 cinematic poster</option>
+        </select>
+
+        <label for="mood">Mood / atmosphere</label>
+        <input id="mood" placeholder="Example: cinematic, dark, heroic, royal, dangerous" value="cinematic, premium, adventurous, confident, mythic" />
+
+        <label for="details">Must include readable details</label>
+        <textarea id="details" placeholder="Example: name, bounty, crew, devil fruit, abilities, quote">new character name, epithet, crew/faction, origin, dream, power system name, power type, 5 abilities, signature quote, wanted-poster style detail panels</textarea>
+
+        <label for="signature">Signature text</label>
+        <input id="signature" value="Vuja Tsoaela" />
+
+        <div class="buttons">
+          <button class="primary" onclick="generatePrompt()">Generate Prompt</button>
+          <button class="secondary" onclick="copyPrompt()">Copy Prompt</button>
+          <button class="secondary" onclick="resetForm()">Reset</button>
+        </div>
+
+        <p class="hint">Tip: keep inputs simple. The app builds the structure for you.</p>
+      </section>
+
+      <section class="card">
+        <h2>Generated prompt</h2>
+        <div class="output" id="output">Your prompt will appear here.</div>
+        <div class="pillrow">
+          <span class="pill">Personal context</span>
+          <span class="pill">Original character</span>
+          <span class="pill">Power system</span>
+          <span class="pill">Readable lore</span>
+          <span class="pill">9:16</span>
+        </div>
+      </section>
+    </div>
+  </div>
+
+  <script>
+    const themeToggle = document.getElementById('themeToggle');
+
+    themeToggle.addEventListener('click', () => {
+      document.body.classList.toggle('light');
+      themeToggle.textContent = document.body.classList.contains('light') ? 'Dark mode' : 'Light mode';
+    });
+
+    function value(id) {
+      return document.getElementById(id).value.trim();
+    }
+
+    function inferPowerSystem(theme) {
+      const t = theme.toLowerCase();
+      if (t.includes('one piece')) return 'a theme-inspired Devil Fruit, Haki style, bounty, pirate crew, and sea-origin lore';
+      if (t.includes('naruto')) return 'chakra nature, clan ability, kekkei genkai, jutsu list, village, rank, and shinobi title';
+      if (t.includes('bleach')) return 'Zanpakutō name, Shikai, Bankai, squad role, spiritual pressure style, and combat abilities';
+      if (t.includes('solo leveling')) return 'hunter rank, monarch-class ability, shadow army traits, gates, weapons, and command skills';
+      if (t.includes('jujutsu')) return 'cursed technique, cursed energy trait, domain expansion, binding vow, and combat rules';
+      if (t.includes('attack on titan')) return 'military role, titan-related ability, regiment, survival traits, and battle doctrine';
+      if (t.includes('demon slayer')) return 'breathing style, forms, sword design, demon-slayer rank, and visual combat effects';
+      if (t.includes('dragon ball')) return 'ki type, transformation stages, fighting style, aura design, and ultimate attacks';
+      return 'a power system that feels native to the selected theme, with original names, rules, limits, and abilities';
+    }
+
+    function generatePrompt() {
+      const theme = value('theme') || 'anime';
+      const personalContext = value('personalContext') || 'calm, strategic, powerful, and original';
+      const role = value('role') || 'original main character';
+      const powerStyle = value('powerStyle') || 'identity-based power';
+      const posterFormat = value('posterFormat') || 'vertical 9:16 character sheet';
+      const mood = value('mood') || 'cinematic and premium';
+      const details = value('details') || 'name, abilities, faction, quote, and readable lore panels';
+      const signature = value('signature') || 'Vuja Tsoaela';
+      const powerSystem = inferPowerSystem(theme);
+
+      const prompt = `Create an original ${theme}-inspired anime character visual based on this personal context: ${personalContext}.
+
+The character must feel like a new, original person who could exist inside a ${theme}-inspired universe, without copying any existing character. Make the character a ${role} with a strong visual identity, confident presence, and a design that matches the theme.
+
+Use this theme-inspired power direction: ${powerStyle}. Build it into ${powerSystem}.
+
+Format the image as a premium ${posterFormat}. The composition must include readable character details, clean text panels, and a polished poster/card layout. Include: ${details}.
+
+Visual style: anime style, cinematic lighting, high-detail character design, expressive pose, strong silhouette, premium poster composition, ${mood}. Make the background feel connected to the ${theme}-inspired world.
+
+Important details: keep the character original, make the power system believable within the theme, keep all readable text short and clean, avoid clutter, and include a stylized signature reading "${signature}" at the bottom right.
+
+Aspect ratio: 9:16 vertical.`;
+
+      document.getElementById('output').textContent = prompt;
+    }
+
+    async function copyPrompt() {
+      const text = document.getElementById('output').textContent;
+      if (!text || text === 'Your prompt will appear here.') {
+        generatePrompt();
+      }
+      const finalText = document.getElementById('output').textContent;
+      try {
+        await navigator.clipboard.writeText(finalText);
+        alert('Prompt copied.');
+      } catch (err) {
+        alert('Copy failed. Select the prompt and copy manually.');
+      }
+    }
+
+    function resetForm() {
+      document.getElementById('theme').value = 'One Piece';
+      document.getElementById('personalContext').value = 'calm, strategic, masculine, powerful, self-made, freedom-seeking, emotionally controlled';
+      document.getElementById('role').value = 'pirate captain';
+      document.getElementById('powerStyle').value = 'maps, fate, direction, hidden paths, and future possibilities';
+      document.getElementById('posterFormat').value = 'vertical 9:16 character sheet';
+      document.getElementById('mood').value = 'cinematic, premium, adventurous, confident, mythic';
+      document.getElementById('details').value = 'new character name, epithet, crew/faction, origin, dream, power system name, power type, 5 abilities, signature quote, wanted-poster style detail panels';
+      document.getElementById('signature').value = 'Vuja Tsoaela';
+      document.getElementById('output').textContent = 'Your prompt will appear here.';
+    }
+
+    generatePrompt();
+  </script>
+</body>
+</html>
