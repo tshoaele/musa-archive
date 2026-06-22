@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Unit Calculator</title>
+<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Barlow:wght@300;400;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #f0f2f5;
+    --panel: #ffffff;
+    --border: #dde1e8;
+    --accent: #00a870;
+    --accent2: #0070cc;
+    --warn: #d94f00;
+    --text: #1a2030;
+    --muted: #8492a6;
+    --mono: 'Share Tech Mono', monospace;
+    --sans: 'Barlow', sans-serif;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--sans);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    background-image: 
+      radial-gradient(ellipse at 20% 50%, rgba(0,168,112,0.06) 0%, transparent 60%),
+      radial-gradient(ellipse at 80% 20%, rgba(0,112,204,0.06) 0%, transparent 60%);
+  }
+
+  .card {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    width: 100%;
+    max-width: 480px;
+    overflow: hidden;
+    box-shadow: 0 24px 80px rgba(0,0,0,0.5);
+  }
+
+  .header {
+    padding: 24px 28px 20px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .bolt {
+    width: 36px; height: 36px;
+    background: var(--accent);
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px;
+    flex-shrink: 0;
+  }
+
+  .header h1 {
+    font-size: 18px;
+    font-weight: 700;
+    letter-spacing: -0.3px;
+  }
+
+  .header p {
+    font-size: 12px;
+    color: var(--muted);
+    margin-top: 2px;
+    font-family: var(--mono);
+  }
+
+  .mode-toggle {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0;
+    margin: 24px 28px 0;
+    background: var(--bg);
+    border-radius: 10px;
+    padding: 4px;
+    border: 1px solid var(--border);
+  }
+
+  .mode-btn {
+    padding: 10px;
+    border: none;
+    background: transparent;
+    color: var(--muted);
+    font-family: var(--sans);
+    font-size: 13px;
+    font-weight: 600;
+    border-radius: 7px;
+    cursor: pointer;
+    transition: all 0.2s;
+    letter-spacing: 0.3px;
+  }
+
+  .mode-btn.active {
+    background: var(--accent);
+    color: #000;
+  }
+
+  .body { padding: 24px 28px 28px; }
+
+  .field { margin-bottom: 18px; }
+
+  label {
+    display: block;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1.2px;
+    color: var(--muted);
+    margin-bottom: 8px;
+    font-family: var(--mono);
+  }
+
+  .input-wrap {
+    position: relative;
+    display: flex;
+    align-items: center;
+  }
+
+  .prefix {
+    position: absolute;
+    left: 14px;
+    font-family: var(--mono);
+    font-size: 14px;
+    color: var(--accent);
+    pointer-events: none;
+    z-index: 1;
+  }
+
+  input[type="number"] {
+    width: 100%;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 9px;
+    padding: 12px 14px 12px 34px;
+    color: var(--text);
+    font-family: var(--mono);
+    font-size: 16px;
+    outline: none;
+    transition: border-color 0.2s;
+    -moz-appearance: textfield;
+  }
+
+  input[type="number"]::-webkit-inner-spin-button,
+  input[type="number"]::-webkit-outer-spin-button { -webkit-appearance: none; }
+
+  input[type="number"]:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(0,229,160,0.1);
+  }
+
+  input.no-prefix { padding-left: 14px; }
+
+  .suffix {
+    position: absolute;
+    right: 14px;
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--muted);
+  }
+
+  .divider {
+    height: 1px;
+    background: var(--border);
+    margin: 22px 0;
+    position: relative;
+  }
+
+  .divider span {
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    background: var(--panel);
+    padding: 0 10px;
+    font-size: 10px;
+    font-family: var(--mono);
+    color: var(--muted);
+    letter-spacing: 1px;
+  }
+
+  .result-box {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 16px;
+  }
+
+  .result-main {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 16px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .result-label {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1.2px;
+    color: var(--muted);
+    font-family: var(--mono);
+  }
+
+  .result-value {
+    font-family: var(--mono);
+    font-size: 28px;
+    color: var(--accent);
+    line-height: 1;
+  }
+
+  .result-value.rands { color: var(--accent2); }
+
+  .breakdown { display: grid; gap: 8px; }
+
+  .breakdown-row {
+    display: flex;
+    justify-content: space-between;
+    font-size: 12px;
+    font-family: var(--mono);
+  }
+
+  .breakdown-row .bk-label { color: var(--muted); }
+  .breakdown-row .bk-val { color: var(--text); }
+  .breakdown-row .bk-val.neg { color: var(--warn); }
+  .breakdown-row .bk-val.pos { color: var(--accent); }
+
+  .tariff-note {
+    background: rgba(0,229,160,0.05);
+    border: 1px solid rgba(0,229,160,0.15);
+    border-radius: 8px;
+    padding: 10px 14px;
+    font-size: 11px;
+    font-family: var(--mono);
+    color: var(--accent);
+    text-align: center;
+    margin-bottom: 16px;
+  }
+
+  .settings-toggle {
+    text-align: center;
+    margin-top: 16px;
+  }
+
+  .settings-toggle button {
+    background: none;
+    border: none;
+    color: var(--muted);
+    font-size: 11px;
+    font-family: var(--mono);
+    cursor: pointer;
+    text-decoration: underline;
+    letter-spacing: 0.5px;
+  }
+
+  .settings-toggle button:hover { color: var(--text); }
+
+  .settings-panel {
+    display: none;
+    background: rgba(0,153,255,0.04);
+    border: 1px solid rgba(0,153,255,0.15);
+    border-radius: 10px;
+    padding: 18px;
+    margin-top: 16px;
+  }
+
+  .settings-panel.open { display: block; }
+
+  .settings-panel label { color: #4a9aba; }
+
+  .settings-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-top: 4px;
+  }
+
+  .empty-state {
+    text-align: center;
+    padding: 20px;
+    color: var(--muted);
+    font-size: 13px;
+    font-family: var(--mono);
+  }
+</style>
+</head>
+<body>
+
+<div class="card">
+  <div class="header">
+    <div class="bolt">⚡</div>
+    <div>
+      <h1>Unit Calculator</h1>
+      <p>EKURHULENI DOMESTIC B · 15% VAT</p>
+    </div>
+  </div>
+
+  <div class="mode-toggle">
+    <button class="mode-btn active" onclick="setMode('rands')">Rands → Units</button>
+    <button class="mode-btn" onclick="setMode('units')">Units → Rands</button>
+  </div>
+
+  <div class="body">
+
+    <div id="input-rands" class="field">
+      <label>Amount to Spend</label>
+      <div class="input-wrap">
+        <span class="prefix">R</span>
+        <input type="number" id="rands-input" placeholder="550.00" step="0.01" oninput="calc()">
+      </div>
+    </div>
+
+    <div id="input-units" class="field" style="display:none">
+      <label>Units You Want</label>
+      <div class="input-wrap">
+        <input type="number" id="units-input" class="no-prefix" placeholder="127.4" step="0.1" oninput="calc()">
+        <span class="suffix">kWh</span>
+      </div>
+    </div>
+
+    <div class="divider"><span>RESULT</span></div>
+
+    <div id="output">
+      <div class="empty-state">Enter an amount above</div>
+    </div>
+
+    <div class="settings-toggle">
+      <button onclick="toggleSettings()">⚙ adjust rates</button>
+    </div>
+
+    <div class="settings-panel" id="settings">
+      <div class="settings-grid">
+        <div class="field">
+          <label>Rate (R/unit excl. VAT)</label>
+          <div class="input-wrap">
+            <span class="prefix">R</span>
+            <input type="number" id="rate" value="3.57" step="0.0001" oninput="calc()">
+          </div>
+        </div>
+        <div class="field">
+          <label>Vend Fee %</label>
+          <div class="input-wrap">
+            <input type="number" id="vend-pct" class="no-prefix" value="5" step="0.1" oninput="calc()">
+            <span class="suffix">%</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Monthly Service Charge - always visible -->
+    <div style="margin-top:20px;background:rgba(0,153,255,0.04);border:1px solid rgba(0,153,255,0.15);border-radius:10px;padding:16px 18px;">
+      <div style="display:flex;align-items:center;justify-content:space-between;">
+        <label style="margin:0;color:#4a9aba;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1.2px;font-family:var(--mono)">Monthly Service Charge</label>
+        <label style="display:flex;align-items:center;gap:8px;cursor:pointer;text-transform:none;letter-spacing:0;font-size:12px;color:var(--muted);margin:0;font-family:var(--mono)">
+          <input type="checkbox" id="msc-toggle" onchange="toggleMSC()" style="width:16px;height:16px;cursor:pointer;accent-color:var(--accent)">
+          Include
+        </label>
+      </div>
+      <div id="msc-field" style="display:none;margin-top:12px">
+        <div class="input-wrap">
+          <span class="prefix">R</span>
+          <input type="number" id="msc" value="79.41" step="0.01" oninput="calc()" placeholder="79.41">
+        </div>
+        <div style="font-size:10px;font-family:var(--mono);color:var(--muted);margin-top:6px">excl. VAT · added on top of your purchase total</div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+  let mode = 'rands';
+
+  // Vend fee = 5% of total excl. VAT (confirmed across all slips)
+  // totalExcl = elecExcl + msc + vendFee
+  // vendFee = 0.05 * totalExcl
+  // So: totalExcl = elecExcl + msc + 0.05*totalExcl
+  //     0.95 * totalExcl = elecExcl + msc
+  //     totalExcl = (elecExcl + msc) / 0.95
+
+  function getSettings() {
+    const mscEnabled = document.getElementById('msc-toggle').checked;
+    return {
+      rate: parseFloat(document.getElementById('rate').value) || 3.57,
+      vendPct: (parseFloat(document.getElementById('vend-pct').value) || 5) / 100,
+      msc: mscEnabled ? (parseFloat(document.getElementById('msc').value) || 79.41) : 0,
+      mscEnabled,
+      vat: 0.15
+    };
+  }
+
+  function toggleMSC() {
+    const on = document.getElementById('msc-toggle').checked;
+    document.getElementById('msc-field').style.display = on ? 'block' : 'none';
+    calc();
+  }
+
+  function setMode(m) {
+    mode = m;
+    document.querySelectorAll('.mode-btn').forEach((b, i) => {
+      b.classList.toggle('active', (i === 0 && m === 'rands') || (i === 1 && m === 'units'));
+    });
+    document.getElementById('input-rands').style.display = m === 'rands' ? '' : 'none';
+    document.getElementById('input-units').style.display = m === 'units' ? '' : 'none';
+    document.getElementById('output').innerHTML = '<div class="empty-state">Enter an amount above</div>';
+  }
+
+  function toggleSettings() {
+    document.getElementById('settings').classList.toggle('open');
+  }
+
+  function fmt(n) { return n.toFixed(2); }
+  function fmtU(n) { return n.toFixed(1); }
+
+  function calc() {
+    const s = getSettings();
+
+    let units, totalIncl, totalExcl, elecExcl, vendFee;
+
+    if (mode === 'rands') {
+      const val = parseFloat(document.getElementById('rands-input').value);
+      if (!val || val <= 0) { document.getElementById('output').innerHTML = '<div class="empty-state">Enter an amount above</div>'; return; }
+      totalIncl = val;
+      totalExcl = totalIncl / (1 + s.vat);
+      vendFee = s.vendPct * totalExcl;
+      elecExcl = totalExcl - vendFee - s.msc;
+      if (elecExcl <= 0) { document.getElementById('output').innerHTML = '<div class="empty-state">Amount too low to cover fees</div>'; return; }
+      units = elecExcl / s.rate;
+    } else {
+      units = parseFloat(document.getElementById('units-input').value);
+      if (!units || units <= 0) { document.getElementById('output').innerHTML = '<div class="empty-state">Enter units above</div>'; return; }
+      elecExcl = units * s.rate;
+      // totalExcl = (elecExcl + msc) / (1 - vendPct)
+      totalExcl = (elecExcl + s.msc) / (1 - s.vendPct);
+      vendFee = s.vendPct * totalExcl;
+      totalIncl = totalExcl * (1 + s.vat);
+    }
+
+    const totalVat = totalIncl - totalExcl;
+    const mscIncl = s.msc * (1 + s.vat);
+
+    document.getElementById('output').innerHTML = `
+      <div class="tariff-note">R${fmt(s.rate)}/unit · vend fee ${(s.vendPct*100).toFixed(0)}% of total excl. VAT${s.mscEnabled ? ` · +R${fmt(mscIncl)} service charge` : ''}</div>
+      <div class="result-box">
+        <div class="result-main">
+          <div>
+            <div class="result-label">${mode === 'rands' ? 'Units You Get' : 'Total to Pay'}</div>
+          </div>
+          <div class="result-value ${mode === 'units' ? 'rands' : ''}">
+            ${mode === 'rands' ? fmtU(units) + ' kWh' : 'R ' + fmt(totalIncl)}
+          </div>
+        </div>
+        <div class="breakdown">
+          <div class="breakdown-row">
+            <span class="bk-label">Electricity (excl. VAT)</span>
+            <span class="bk-val">R ${fmt(elecExcl)}</span>
+          </div>
+          <div class="breakdown-row">
+            <span class="bk-label">Vend fee 5% (excl. VAT)</span>
+            <span class="bk-val neg">R ${fmt(vendFee)}</span>
+          </div>
+          ${s.mscEnabled ? `
+          <div class="breakdown-row">
+            <span class="bk-label">Monthly service charge (excl. VAT)</span>
+            <span class="bk-val neg">R ${fmt(s.msc)}</span>
+          </div>` : ''}
+          <div class="breakdown-row">
+            <span class="bk-label">VAT (15%)</span>
+            <span class="bk-val neg">R ${fmt(totalVat)}</span>
+          </div>
+          <div class="breakdown-row" style="padding-top:8px;border-top:1px solid var(--border);margin-top:4px">
+            <span class="bk-label" style="color:var(--text);font-weight:700">TOTAL (VAT INCL.)</span>
+            <span class="bk-val" style="color:var(--accent2);font-size:14px">R ${fmt(totalIncl)}</span>
+          </div>
+          <div class="breakdown-row">
+            <span class="bk-label">Effective rate per unit</span>
+            <span class="bk-val">R ${fmt(totalIncl / units)} / kWh</span>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+</script>
+</body>
+</html>
