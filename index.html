@@ -1,0 +1,644 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Energy Masterclass — Active & Reactive Explained</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #F7F5F0;
+    --surface: #FFFFFF;
+    --border: rgba(0,0,0,0.08);
+    --border-strong: rgba(0,0,0,0.15);
+    --text: #1A1A18;
+    --text-muted: #6B6B68;
+    --text-faint: #9A9A97;
+    --teal: #0F6E56;
+    --teal-light: #E1F5EE;
+    --teal-mid: #1D9E75;
+    --coral: #993C1D;
+    --coral-light: #FAECE7;
+    --amber: #854F0B;
+    --amber-light: #FAEEDA;
+    --purple: #3C3489;
+    --purple-light: #EEEDFE;
+    --blue: #185FA5;
+    --blue-light: #E6F1FB;
+    --gray-light: #F1EFE8;
+    --radius: 12px;
+    --radius-sm: 8px;
+  }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    padding: 2rem 1rem 4rem;
+  }
+
+  .page-wrap {
+    max-width: 720px;
+    margin: 0 auto;
+  }
+
+  /* Header */
+  .site-header {
+    text-align: center;
+    margin-bottom: 3rem;
+    padding-bottom: 2rem;
+    border-bottom: 1px solid var(--border);
+  }
+  .site-header .eyebrow {
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.1em;
+    color: var(--text-faint);
+    text-transform: uppercase;
+    margin-bottom: 12px;
+  }
+  .site-header h1 {
+    font-family: 'DM Serif Display', serif;
+    font-size: clamp(28px, 5vw, 42px);
+    font-weight: 400;
+    line-height: 1.15;
+    color: var(--text);
+    margin-bottom: 12px;
+  }
+  .site-header h1 em {
+    font-style: italic;
+    color: var(--teal);
+  }
+  .site-header p {
+    font-size: 15px;
+    color: var(--text-muted);
+    line-height: 1.6;
+    max-width: 480px;
+    margin: 0 auto;
+  }
+
+  /* Progress */
+  .progress-track {
+    display: flex;
+    gap: 6px;
+    margin-bottom: 2rem;
+  }
+  .prog-seg {
+    height: 3px;
+    flex: 1;
+    border-radius: 2px;
+    background: var(--border);
+    transition: background 0.4s;
+  }
+  .prog-seg.active { background: var(--teal-mid); }
+  .prog-seg.done { background: var(--teal); }
+
+  /* Lesson card */
+  .lesson-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 2rem;
+    display: none;
+  }
+  .lesson-card.visible { display: block; }
+
+  .lesson-eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    padding: 4px 10px;
+    border-radius: 20px;
+    margin-bottom: 16px;
+  }
+  .eyebrow-active { background: var(--blue-light); color: var(--blue); }
+  .eyebrow-reactive { background: var(--amber-light); color: var(--amber); }
+
+  .lesson-title {
+    font-family: 'DM Serif Display', serif;
+    font-size: clamp(22px, 4vw, 30px);
+    font-weight: 400;
+    line-height: 1.2;
+    margin-bottom: 8px;
+    color: var(--text);
+  }
+  .lesson-sub {
+    font-size: 15px;
+    color: var(--text-muted);
+    line-height: 1.65;
+    margin-bottom: 24px;
+  }
+
+  /* Analogy box */
+  .analogy {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--teal-mid);
+    border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+    padding: 16px 20px;
+    margin-bottom: 20px;
+  }
+  .analogy-label {
+    font-size: 10px;
+    font-weight: 500;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--text-faint);
+    margin-bottom: 8px;
+  }
+  .analogy-text {
+    font-size: 14px;
+    line-height: 1.65;
+    color: var(--text);
+  }
+
+  /* Two col cards */
+  .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px; }
+  @media (max-width: 480px) { .two-col { grid-template-columns: 1fr; } }
+
+  .e-card {
+    border-radius: var(--radius-sm);
+    padding: 14px 16px;
+    border: 1px solid transparent;
+  }
+  .e-card-teal { background: var(--teal-light); border-color: rgba(15,110,86,0.2); }
+  .e-card-coral { background: var(--coral-light); border-color: rgba(153,60,29,0.2); }
+  .e-card-amber { background: var(--amber-light); border-color: rgba(133,79,11,0.2); }
+  .e-card-purple { background: var(--purple-light); border-color: rgba(60,52,137,0.2); }
+
+  .e-card-title { font-size: 13px; font-weight: 500; margin-bottom: 5px; }
+  .e-card-teal .e-card-title { color: var(--teal); }
+  .e-card-coral .e-card-title { color: var(--coral); }
+  .e-card-amber .e-card-title { color: var(--amber); }
+  .e-card-purple .e-card-title { color: var(--purple); }
+
+  .e-card-body { font-size: 13px; line-height: 1.55; }
+  .e-card-teal .e-card-body { color: #0F6E56; }
+  .e-card-coral .e-card-body { color: var(--coral); }
+  .e-card-amber .e-card-body { color: var(--amber); }
+  .e-card-purple .e-card-body { color: var(--purple); }
+
+  /* Demo area */
+  .demo-area {
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+    margin-bottom: 20px;
+  }
+  .demo-header {
+    background: var(--bg);
+    padding: 10px 16px;
+    font-size: 12px;
+    color: var(--text-muted);
+    border-bottom: 1px solid var(--border);
+    font-weight: 500;
+  }
+  .demo-body { padding: 18px; }
+
+  /* Buttons */
+  .ctrl-row { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 14px; }
+  .ctrl-btn {
+    background: var(--bg);
+    border: 1px solid var(--border-strong);
+    border-radius: 20px;
+    padding: 6px 14px;
+    font-size: 12px;
+    font-family: 'DM Sans', sans-serif;
+    color: var(--text-muted);
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .ctrl-btn:hover { background: var(--surface); color: var(--text); }
+  .ctrl-btn.on { background: var(--teal-light); border-color: var(--teal); color: var(--teal); font-weight: 500; }
+
+  .scen-label {
+    font-size: 13px;
+    color: var(--text-muted);
+    margin-bottom: 14px;
+    line-height: 1.5;
+  }
+
+  /* Pipe flow */
+  .pipe-wrap { display: flex; align-items: center; gap: 0; margin-bottom: 14px; }
+  .node-box {
+    border-radius: var(--radius-sm);
+    padding: 8px 12px;
+    font-size: 12px;
+    font-weight: 500;
+    white-space: nowrap;
+  }
+  .node-grid { background: var(--blue-light); color: var(--blue); border: 1px solid rgba(24,95,165,0.2); }
+  .node-meter { background: var(--surface); color: var(--text); border: 1.5px solid var(--border-strong); }
+  .node-house { background: var(--amber-light); color: var(--amber); border: 1px solid rgba(133,79,11,0.2); }
+  .pipe { flex: 1; height: 6px; position: relative; overflow: hidden; border-radius: 3px; background: var(--border); }
+  .pipe-fill {
+    position: absolute; top: 0; bottom: 0;
+    border-radius: 3px;
+    animation: none;
+  }
+  .pipe-fill.flow-fwd { background: var(--teal-mid); animation: fwd 1s linear infinite; }
+  .pipe-fill.flow-rev { background: #D85A30; animation: rev 1s linear infinite; }
+  @keyframes fwd { 0%{left:0;right:100%} 45%{left:0;right:0} 100%{left:100%;right:0} }
+  @keyframes rev { 0%{right:0;left:100%} 45%{right:0;left:0} 100%{right:100%;left:0} }
+
+  /* Registers */
+  .reg-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .reg {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 12px 14px;
+  }
+  .reg-label { font-size: 11px; color: var(--text-faint); margin-bottom: 4px; }
+  .reg-val { font-size: 20px; font-weight: 500; font-variant-numeric: tabular-nums; }
+  .reg-val.active-color { color: var(--teal); }
+  .reg-val.muted-color { color: var(--text-faint); }
+  .reg-val.coral-color { color: var(--coral); }
+
+  /* Load demo */
+  .load-visual {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 14px 16px;
+    margin-bottom: 12px;
+  }
+  .load-name { font-size: 14px; font-weight: 500; color: var(--text); margin-bottom: 3px; }
+  .load-type { font-size: 12px; color: var(--text-muted); margin-bottom: 12px; }
+  .badge-row { display: flex; gap: 8px; margin-bottom: 12px; flex-wrap: wrap; }
+  .badge {
+    font-size: 11px;
+    font-weight: 500;
+    padding: 3px 10px;
+    border-radius: 20px;
+  }
+  .badge-yes-purple { background: var(--purple-light); color: var(--purple); }
+  .badge-yes-amber { background: var(--amber-light); color: var(--amber); }
+  .badge-no { background: var(--gray-light); color: var(--text-faint); }
+  .load-explain { font-size: 13px; color: var(--text-muted); line-height: 1.6; }
+
+  /* PF bar */
+  .pf-row { display: flex; justify-content: space-between; font-size: 12px; color: var(--text-muted); margin-bottom: 5px; }
+  .pf-track { height: 8px; background: var(--border); border-radius: 4px; overflow: hidden; }
+  .pf-fill { height: 100%; border-radius: 4px; transition: width 0.4s, background 0.4s; }
+  .pf-ends { display: flex; justify-content: space-between; font-size: 10px; color: var(--text-faint); margin-top: 3px; }
+
+  /* Summary grid */
+  .sum-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  @media (max-width: 480px) { .sum-grid { grid-template-columns: 1fr; } }
+  .sum-card {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 14px 16px;
+  }
+  .sum-title { font-size: 12px; font-weight: 500; margin-bottom: 10px; }
+  .sum-title-teal { color: var(--teal); }
+  .sum-title-coral { color: var(--coral); }
+  .sum-title-purple { color: var(--purple); }
+  .sum-title-amber { color: var(--amber); }
+  .sum-row {
+    display: flex;
+    justify-content: space-between;
+    font-size: 12px;
+    padding: 4px 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .sum-row:last-child { border-bottom: none; }
+  .sum-key { color: var(--text-muted); }
+  .sum-val { font-weight: 500; color: var(--text); }
+  .pill-yes { background: var(--teal-light); color: var(--teal); font-size: 10px; font-weight: 500; padding: 2px 8px; border-radius: 10px; }
+  .pill-no { background: var(--gray-light); color: var(--text-faint); font-size: 10px; font-weight: 500; padding: 2px 8px; border-radius: 10px; }
+
+  /* Nav */
+  .nav-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 24px;
+    padding-top: 20px;
+    border-top: 1px solid var(--border);
+  }
+  .nav-btn {
+    background: var(--surface);
+    border: 1px solid var(--border-strong);
+    border-radius: var(--radius-sm);
+    padding: 9px 20px;
+    font-size: 13px;
+    font-family: 'DM Sans', sans-serif;
+    color: var(--text);
+    cursor: pointer;
+    transition: all 0.15s;
+    font-weight: 500;
+  }
+  .nav-btn:hover { background: var(--bg); }
+  .nav-btn:disabled { opacity: 0.3; cursor: default; }
+  .nav-btn.primary {
+    background: var(--teal);
+    border-color: var(--teal);
+    color: white;
+  }
+  .nav-btn.primary:hover { background: var(--teal-mid); border-color: var(--teal-mid); }
+  .nav-count { font-size: 12px; color: var(--text-faint); }
+
+  /* Footer */
+  .site-footer {
+    text-align: center;
+    margin-top: 3rem;
+    padding-top: 2rem;
+    border-top: 1px solid var(--border);
+    font-size: 12px;
+    color: var(--text-faint);
+  }
+  .site-footer strong { color: var(--text-muted); font-weight: 500; }
+</style>
+</head>
+<body>
+<div class="page-wrap">
+
+  <header class="site-header">
+    <div class="eyebrow">Smart Meter Masterclass</div>
+    <h1>Active &amp; <em>Reactive</em> Energy<br>Explained Simply</h1>
+    <p>Four interactive lessons covering everything your smart meter measures — no electrical background needed.</p>
+  </header>
+
+  <div class="progress-track" id="progress">
+    <div class="prog-seg active" id="pd0"></div>
+    <div class="prog-seg" id="pd1"></div>
+    <div class="prog-seg" id="pd2"></div>
+    <div class="prog-seg" id="pd3"></div>
+  </div>
+
+  <!-- LESSON 1 -->
+  <div class="lesson-card visible" id="lesson-0">
+    <div class="lesson-eyebrow eyebrow-active">Lesson 1 of 4</div>
+    <div class="lesson-title">Two kinds of electricity</div>
+    <div class="lesson-sub">Before we talk about positive and negative, you need to know that your meter measures two completely separate things at the same time. Think of them as two independent odometers in a car.</div>
+
+    <div class="analogy">
+      <div class="analogy-label">The restaurant analogy</div>
+      <div class="analogy-text"><strong>Active energy</strong> is the food that gets eaten — it does real work, nourishes you, and you pay for it. <strong>Reactive energy</strong> is the waiter walking back and forth to your table — necessary to deliver the food, takes up effort and space in the restaurant, but you don't eat the waiter. Both happen at the same time. Both get measured.</div>
+    </div>
+
+    <div class="two-col">
+      <div class="e-card e-card-teal">
+        <div class="e-card-title">Active energy</div>
+        <div class="e-card-body">Real power. Does actual work. Turns motors, makes heat, lights bulbs. You pay for this. Measured in kWh.</div>
+      </div>
+      <div class="e-card e-card-amber">
+        <div class="e-card-title">Reactive energy</div>
+        <div class="e-card-body">Invisible support power. Maintains magnetic fields in motors and coils. Does no useful work. Measured in kVArh.</div>
+      </div>
+    </div>
+
+    <div class="analogy">
+      <div class="analogy-label">Key insight</div>
+      <div class="analogy-text">These two tracks are completely independent. A reading on one says nothing about the other. Your meter logs both simultaneously, 24 hours a day.</div>
+    </div>
+
+    <div class="nav-row">
+      <button class="nav-btn" disabled>Back</button>
+      <span class="nav-count" id="nc0">1 / 4</span>
+      <button class="nav-btn primary" onclick="go(0,1)">Next lesson &rarr;</button>
+    </div>
+  </div>
+
+  <!-- LESSON 2 -->
+  <div class="lesson-card" id="lesson-1">
+    <div class="lesson-eyebrow eyebrow-active">Lesson 2 of 4</div>
+    <div class="lesson-title">Active energy: positive vs negative</div>
+    <div class="lesson-sub">Active energy has a direction. Power can flow into your house from the grid, or out from your house back to the grid. The meter watches both directions and records them separately.</div>
+
+    <div class="demo-area">
+      <div class="demo-header">Interactive — pick a scenario</div>
+      <div class="demo-body">
+        <div class="ctrl-row">
+          <button class="ctrl-btn on" onclick="setScenario(this,'import')">No solar</button>
+          <button class="ctrl-btn" onclick="setScenario(this,'export')">Solar exporting</button>
+          <button class="ctrl-btn" onclick="setScenario(this,'both')">Solar + heavy use</button>
+        </div>
+        <div class="scen-label" id="scen-label">A normal house buying electricity from the grid.</div>
+        <div class="pipe-wrap">
+          <div class="node-box node-grid">Grid</div>
+          <div class="pipe"><div class="pipe-fill flow-fwd" id="pf-left"></div></div>
+          <div class="node-box node-meter">Meter</div>
+          <div class="pipe"><div class="pipe-fill flow-fwd" id="pf-right"></div></div>
+          <div class="node-box node-house">House</div>
+        </div>
+        <div class="reg-row">
+          <div class="reg">
+            <div class="reg-label">Active positive (import)</div>
+            <div class="reg-val active-color" id="rv-pos">0.74 kWh</div>
+          </div>
+          <div class="reg">
+            <div class="reg-label">Active negative (export)</div>
+            <div class="reg-val muted-color" id="rv-neg">0.00 kWh</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="two-col">
+      <div class="e-card e-card-teal">
+        <div class="e-card-title">Active positive = import</div>
+        <div class="e-card-body">Power flowing in from the grid to your house. Every house that uses electricity will have readings here. This is your electricity bill.</div>
+      </div>
+      <div class="e-card e-card-coral">
+        <div class="e-card-title">Active negative = export</div>
+        <div class="e-card-body">Power flowing out from your house back to the grid. Only happens if you have solar panels generating more than you consume.</div>
+      </div>
+    </div>
+
+    <div class="nav-row">
+      <button class="nav-btn" onclick="go(1,0)">&larr; Back</button>
+      <span class="nav-count">2 / 4</span>
+      <button class="nav-btn primary" onclick="go(1,2)">Next lesson &rarr;</button>
+    </div>
+  </div>
+
+  <!-- LESSON 3 -->
+  <div class="lesson-card" id="lesson-2">
+    <div class="lesson-eyebrow eyebrow-reactive">Lesson 3 of 4</div>
+    <div class="lesson-title">Reactive energy: the invisible current</div>
+    <div class="lesson-sub">Reactive energy is not about direction of flow in the same way. It is about the type of load connected to the circuit — specifically whether it has coils of wire inside.</div>
+
+    <div class="analogy">
+      <div class="analogy-label">The spring analogy</div>
+      <div class="analogy-text">Imagine pushing a heavy spring. You push it in (energy goes in), then it pushes back (energy returns). You did work, but the spring went nowhere useful. Motors and coils do exactly this — they borrow energy from the grid to build a magnetic field, then return some of it, 50 times per second.</div>
+    </div>
+
+    <div class="demo-area">
+      <div class="demo-header">Interactive — what creates reactive energy?</div>
+      <div class="demo-body">
+        <div class="ctrl-row">
+          <button class="ctrl-btn on" onclick="setLoad(this,'motor')">Fridge</button>
+          <button class="ctrl-btn" onclick="setLoad(this,'ac')">Air conditioner</button>
+          <button class="ctrl-btn" onclick="setLoad(this,'cap')">Capacitor bank</button>
+          <button class="ctrl-btn" onclick="setLoad(this,'kettle')">Kettle</button>
+        </div>
+        <div class="load-visual">
+          <div class="load-name" id="load-name">Fridge compressor</div>
+          <div class="load-type" id="load-type">Inductive load (has motor coils)</div>
+          <div class="badge-row">
+            <span class="badge" id="rneg-badge" style="background:#EEEDFE;color:#3C3489">Reactive negative: YES</span>
+            <span class="badge badge-no" id="rpos-badge">Reactive positive: NO</span>
+          </div>
+          <div class="load-explain" id="load-explain">A fridge compressor has a motor inside. That motor has coils of wire. Those coils create a magnetic field to spin the motor. Building that magnetic field requires reactive power drawn from the grid. This shows up as reactive energy negative.</div>
+        </div>
+        <div class="pf-row">
+          <span>Power factor</span>
+          <strong id="pf-num">0.85</strong>
+        </div>
+        <div class="pf-track">
+          <div class="pf-fill" id="pf-bar" style="width:85%;background:#1D9E75"></div>
+        </div>
+        <div class="pf-ends"><span>0.0 — all reactive</span><span>1.0 — perfect</span></div>
+      </div>
+    </div>
+
+    <div class="nav-row">
+      <button class="nav-btn" onclick="go(2,1)">&larr; Back</button>
+      <span class="nav-count">3 / 4</span>
+      <button class="nav-btn primary" onclick="go(2,3)">Next lesson &rarr;</button>
+    </div>
+  </div>
+
+  <!-- LESSON 4 -->
+  <div class="lesson-card" id="lesson-3">
+    <div class="lesson-eyebrow eyebrow-reactive">Lesson 4 of 4</div>
+    <div class="lesson-title">All four registers — the complete picture</div>
+    <div class="lesson-sub">Your HXE130 has four registers running simultaneously. Here is what each one means, when you should expect readings, and what a typical house shows.</div>
+
+    <div class="sum-grid">
+      <div class="sum-card">
+        <div class="sum-title sum-title-teal">Active energy positive</div>
+        <div class="sum-row"><span class="sum-key">What it is</span><span class="sum-val">Import from grid</span></div>
+        <div class="sum-row"><span class="sum-key">Unit</span><span class="sum-val">kWh</span></div>
+        <div class="sum-row"><span class="sum-key">Every house?</span><span class="sum-val"><span class="pill-yes">Always</span></span></div>
+        <div class="sum-row"><span class="sum-key">Typical reading</span><span class="sum-val">Incrementing</span></div>
+      </div>
+      <div class="sum-card">
+        <div class="sum-title sum-title-coral">Active energy negative</div>
+        <div class="sum-row"><span class="sum-key">What it is</span><span class="sum-val">Export to grid</span></div>
+        <div class="sum-row"><span class="sum-key">Unit</span><span class="sum-val">kWh</span></div>
+        <div class="sum-row"><span class="sum-key">Every house?</span><span class="sum-val"><span class="pill-no">Solar only</span></span></div>
+        <div class="sum-row"><span class="sum-key">No solar?</span><span class="sum-val">Zero — correct</span></div>
+      </div>
+      <div class="sum-card">
+        <div class="sum-title sum-title-purple">Reactive energy negative</div>
+        <div class="sum-row"><span class="sum-key">What it is</span><span class="sum-val">Inductive load draw</span></div>
+        <div class="sum-row"><span class="sum-key">Unit</span><span class="sum-val">kVArh</span></div>
+        <div class="sum-row"><span class="sum-key">Every house?</span><span class="sum-val"><span class="pill-yes">Almost always</span></span></div>
+        <div class="sum-row"><span class="sum-key">Typical reading</span><span class="sum-val">Incrementing</span></div>
+      </div>
+      <div class="sum-card">
+        <div class="sum-title sum-title-amber">Reactive energy positive</div>
+        <div class="sum-row"><span class="sum-key">What it is</span><span class="sum-val">Capacitive load</span></div>
+        <div class="sum-row"><span class="sum-key">Unit</span><span class="sum-val">kVArh</span></div>
+        <div class="sum-row"><span class="sum-key">Every house?</span><span class="sum-val"><span class="pill-no">Rare</span></span></div>
+        <div class="sum-row"><span class="sum-key">No PF correction?</span><span class="sum-val">Zero — correct</span></div>
+      </div>
+    </div>
+
+    <div class="analogy" style="margin-top:16px">
+      <div class="analogy-label">Bottom line</div>
+      <div class="analogy-text">Active positive incrementing = house buying power. Active negative at zero = no solar. Reactive negative incrementing = motors and coils running. Reactive positive at zero = no capacitive equipment. Four registers, all telling the correct story.</div>
+    </div>
+
+    <div class="nav-row">
+      <button class="nav-btn" onclick="go(3,2)">&larr; Back</button>
+      <span class="nav-count">4 / 4</span>
+      <button class="nav-btn primary" onclick="go(3,0)">Start over</button>
+    </div>
+  </div>
+
+  <footer class="site-footer">
+    <strong>Smart Meter Masterclass</strong> &nbsp;&middot;&nbsp; HXE130 Single Phase &nbsp;&middot;&nbsp; Active &amp; Reactive Energy
+  </footer>
+
+</div>
+
+<script>
+  var cur = 0;
+
+  function go(from, to) {
+    document.getElementById('lesson-' + from).classList.remove('visible');
+    var pd = document.getElementById('pd' + from);
+    pd.classList.remove('active');
+    if (to > from) pd.classList.add('done');
+    else pd.classList.remove('done');
+    cur = to;
+    document.getElementById('lesson-' + to).classList.add('visible');
+    var nd = document.getElementById('pd' + to);
+    nd.classList.remove('done');
+    nd.classList.add('active');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  function setScenario(btn, s) {
+    document.querySelectorAll('#lesson-1 .ctrl-btn').forEach(function(b){ b.classList.remove('on'); });
+    btn.classList.add('on');
+    var fl = document.getElementById('pf-left');
+    var fr = document.getElementById('pf-right');
+    var rp = document.getElementById('rv-pos');
+    var rn = document.getElementById('rv-neg');
+    var sl = document.getElementById('scen-label');
+    fl.className = 'pipe-fill';
+    fr.className = 'pipe-fill';
+    if (s === 'import') {
+      fl.className = 'pipe-fill flow-fwd';
+      fr.className = 'pipe-fill flow-fwd';
+      rp.textContent = '0.74 kWh'; rp.className = 'reg-val active-color';
+      rn.textContent = '0.00 kWh'; rn.className = 'reg-val muted-color';
+      sl.textContent = 'A normal house buying electricity from the grid.';
+    } else if (s === 'export') {
+      fl.className = 'pipe-fill flow-rev';
+      fr.className = 'pipe-fill flow-rev';
+      rp.textContent = '0.00 kWh'; rp.className = 'reg-val muted-color';
+      rn.textContent = '1.20 kWh'; rn.className = 'reg-val coral-color';
+      sl.textContent = 'Solar is generating more than the house needs — surplus goes back to the grid.';
+    } else {
+      fl.className = 'pipe-fill flow-fwd';
+      fr.className = 'pipe-fill flow-fwd';
+      rp.textContent = '0.52 kWh'; rp.className = 'reg-val active-color';
+      rn.textContent = '0.18 kWh'; rn.className = 'reg-val coral-color';
+      sl.textContent = 'Solar is generating but the house is using more — net import, with some export at peak sun.';
+    }
+  }
+
+  var loads = {
+    motor: { name: 'Fridge compressor', type: 'Inductive load (has motor coils)', rneg: true, rpos: false, pf: 0.85, explain: 'A fridge compressor has a motor inside. That motor has coils of wire that create a magnetic field to spin the motor. Building that field requires reactive power drawn from the grid — this shows up as reactive energy negative.' },
+    ac:    { name: 'Air conditioner',   type: 'Inductive load (compressor + fan motors)', rneg: true, rpos: false, pf: 0.78, explain: 'An air conditioner has multiple motors — the compressor and the fan. Both are inductive. They pull significant reactive energy negative. A house running AC all day will show a high reactive negative reading.' },
+    cap:   { name: 'Capacitor bank',    type: 'Capacitive load (power factor correction)', rneg: false, rpos: true, pf: 0.98, explain: 'A capacitor bank is deliberately installed to counteract inductive loads. It pushes reactive energy back toward the grid — the main scenario where you would see reactive energy positive. Rare in homes, common in factories.' },
+    kettle:{ name: 'Electric kettle',   type: 'Resistive load (pure heating element)', rneg: false, rpos: false, pf: 1.0, explain: 'A kettle has no coils, no motor, no capacitors. It is a pure resistor. All the electricity it draws becomes heat. Zero reactive component. Power factor is exactly 1.0. Neither reactive register increments.' }
+  };
+
+  function setLoad(btn, k) {
+    document.querySelectorAll('#lesson-2 .ctrl-btn').forEach(function(b){ b.classList.remove('on'); });
+    btn.classList.add('on');
+    var l = loads[k];
+    document.getElementById('load-name').textContent = l.name;
+    document.getElementById('load-type').textContent = l.type;
+    document.getElementById('load-explain').textContent = l.explain;
+    var rnb = document.getElementById('rneg-badge');
+    var rpb = document.getElementById('rpos-badge');
+    if (l.rneg) { rnb.style.background='#EEEDFE'; rnb.style.color='#3C3489'; rnb.textContent='Reactive negative: YES'; }
+    else { rnb.style.background='#F1EFE8'; rnb.style.color='#9A9A97'; rnb.textContent='Reactive negative: NO'; }
+    if (l.rpos) { rpb.style.background='#FAEEDA'; rpb.style.color='#633806'; rpb.textContent='Reactive positive: YES'; }
+    else { rpb.style.background='#F1EFE8'; rpb.style.color='#9A9A97'; rpb.textContent='Reactive positive: NO'; }
+    var pct = Math.round(l.pf * 100);
+    document.getElementById('pf-num').textContent = l.pf.toFixed(2);
+    document.getElementById('pf-bar').style.width = pct + '%';
+    document.getElementById('pf-bar').style.background = l.pf >= 0.90 ? '#1D9E75' : l.pf >= 0.75 ? '#BA7517' : '#D85A30';
+  }
+</script>
+</body>
+</html>
