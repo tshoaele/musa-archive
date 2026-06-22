@@ -1,0 +1,677 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="PromptFace — Generate AI image prompts from any photo using ChatGPT Vision." />
+  <meta name="theme-color" content="#0F1B2D" />
+  <title>PromptFace</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,400&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    img, svg { display: block; max-width: 100%; }
+    button { font-family: inherit; cursor: pointer; }
+    textarea { font-family: inherit; }
+
+    :root {
+      --bg:           #F5F3EF;
+      --surface:      #FFFFFF;
+      --surface2:     #EEEAE5;
+      --border:       #DDD9D2;
+      --text:         #16120E;
+      --text2:        #6A6560;
+      --text3:        #A09C97;
+      --orange:       #D95C2E;
+      --orange-hover: #C04E23;
+      --orange-soft:  #FAECE6;
+      --orange-border:#F0A07A;
+      --navy:         #0F1B2D;
+      --navy-mid:     #1A3050;
+      --navy-soft:    #E8EFF8;
+      --navy-border:  #7FA8D4;
+      --green:        #1E6B3C;
+      --green-soft:   #E6F4ED;
+      --mono: 'Space Mono', monospace;
+      --sans: 'DM Sans', sans-serif;
+      --r-sm: 8px; --r-md: 12px; --r-lg: 16px;
+      --ease: cubic-bezier(0.4,0,0.2,1);
+      --t-fast: 150ms; --t-mid: 220ms;
+    }
+    .dark {
+      --bg:           #0A1018;
+      --surface:      #111823;
+      --surface2:     #192232;
+      --border:       #243347;
+      --text:         #EDF0F5;
+      --text2:        #8FA3BC;
+      --text3:        #4D657E;
+      --orange:       #F07840;
+      --orange-hover: #E86830;
+      --orange-soft:  #2A1408;
+      --orange-border:#A04020;
+      --navy:         #C8DCF0;
+      --navy-mid:     #90B8DC;
+      --navy-soft:    #0E1E30;
+      --navy-border:  #1E3A58;
+      --green:        #5DC888;
+      --green-soft:   #082418;
+    }
+
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: var(--sans);
+      background: var(--bg);
+      color: var(--text);
+      font-size: 15px;
+      line-height: 1.6;
+      min-height: 100vh;
+      transition: background var(--t-mid) var(--ease), color var(--t-mid) var(--ease);
+      -webkit-font-smoothing: antialiased;
+    }
+    .app { max-width: 660px; margin: 0 auto; padding: 0 16px 64px; }
+
+    /* Header */
+    .header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 20px 0 18px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 24px;
+    }
+    .logo-lockup { display: flex; align-items: center; gap: 10px; }
+    .logo-mark {
+      width: 34px; height: 34px;
+      background: var(--orange);
+      border-radius: var(--r-sm);
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+    .logo-mark svg { width: 18px; height: 18px; }
+    .logo-name {
+      font-family: var(--mono); font-size: 13px; font-weight: 700;
+      color: var(--text); letter-spacing: 0.06em; text-transform: uppercase; line-height: 1.2;
+    }
+    .logo-sub { font-size: 11px; color: var(--text3); margin-top: 2px; line-height: 1.2; }
+    .theme-btn {
+      width: 36px; height: 36px; border-radius: var(--r-sm);
+      border: 1px solid var(--border); background: var(--surface2); color: var(--text2);
+      display: flex; align-items: center; justify-content: center; font-size: 16px;
+      transition: background var(--t-fast) var(--ease);
+    }
+    .theme-btn:hover { background: var(--border); color: var(--text); }
+
+    /* Upload zone */
+    .upload-zone {
+      border: 1.5px dashed var(--border); border-radius: var(--r-lg);
+      padding: 44px 24px; text-align: center; cursor: pointer;
+      transition: border-color var(--t-fast) var(--ease), background var(--t-fast) var(--ease);
+      background: var(--surface); outline: none; user-select: none;
+    }
+    .upload-zone:hover, .upload-zone.drag, .upload-zone:focus-visible {
+      border-color: var(--orange); background: var(--orange-soft);
+    }
+    .upload-icon {
+      font-size: 36px; display: block; margin-bottom: 12px; opacity: 0.45;
+      transition: opacity var(--t-fast) var(--ease);
+    }
+    .upload-zone:hover .upload-icon, .upload-zone.drag .upload-icon { opacity: 0.7; }
+    .upload-label { font-size: 14px; font-weight: 500; color: var(--text2); margin-bottom: 5px; }
+    .upload-hint { font-size: 11px; color: var(--text3); }
+
+    /* Preview */
+    .preview-wrap {
+      border-radius: var(--r-lg); overflow: hidden;
+      border: 1px solid var(--border); background: var(--surface);
+    }
+    .preview-img { width: 100%; max-height: 360px; object-fit: cover; display: block; }
+    .preview-bar {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 10px 14px; border-top: 1px solid var(--border); gap: 10px;
+    }
+    .preview-name {
+      font-family: var(--mono); font-size: 11px; color: var(--text3);
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; flex: 1;
+    }
+    .preview-actions { display: flex; gap: 8px; flex-shrink: 0; }
+
+    /* Buttons */
+    .btn {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 7px 14px; border-radius: var(--r-sm); font-size: 13px; font-weight: 500;
+      border: 1px solid transparent; line-height: 1; white-space: nowrap;
+      transition: background var(--t-fast) var(--ease), opacity var(--t-fast) var(--ease);
+    }
+    .btn:focus-visible { outline: 2px solid var(--orange); outline-offset: 2px; }
+    .btn-ghost { background: var(--surface2); border-color: var(--border); color: var(--text2); }
+    .btn-ghost:hover { background: var(--border); color: var(--text); }
+    .btn-primary { background: var(--orange); color: #fff; border-color: var(--orange); font-weight: 600; }
+    .btn-primary:hover { background: var(--orange-hover); border-color: var(--orange-hover); }
+    .btn-copy {
+      display: inline-flex; align-items: center; gap: 5px;
+      padding: 5px 12px; background: var(--navy); color: #fff;
+      border: none; border-radius: 6px; font-size: 11px; font-weight: 700;
+      letter-spacing: 0.03em; white-space: nowrap; flex-shrink: 0;
+      transition: background var(--t-fast) var(--ease), transform var(--t-fast) var(--ease);
+    }
+    .btn-copy:hover { background: var(--navy-mid); }
+    .btn-copy:active { transform: scale(0.96); }
+    .btn-copy.copied { background: var(--green); }
+    .dark .btn-copy { background: var(--navy-mid); color: #fff; }
+    .dark .btn-copy:hover { background: var(--navy); }
+    .dark .btn-copy.copied { background: var(--green); }
+
+    /* Settings */
+    .settings-panel {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--r-lg); padding: 18px; margin-top: 14px;
+    }
+    .settings-title {
+      font-family: var(--mono); font-size: 10px; font-weight: 700;
+      color: var(--text3); text-transform: uppercase; letter-spacing: 0.12em; margin-bottom: 16px;
+    }
+    .settings-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    @media (max-width: 480px) { .settings-grid { grid-template-columns: 1fr; } }
+    .field { display: flex; flex-direction: column; gap: 6px; }
+    .field-label { font-size: 12px; color: var(--text2); }
+    .field-input, .field-select {
+      background: var(--surface2); border: 1px solid var(--border); color: var(--text);
+      font-family: var(--sans); font-size: 13px; padding: 8px 11px;
+      border-radius: var(--r-sm); outline: none; width: 100%;
+      transition: border-color var(--t-fast) var(--ease), background var(--t-fast) var(--ease);
+      -webkit-appearance: none; appearance: none;
+    }
+    .field-select {
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath fill='%23A09C97' d='M6 8L0 0h12z'/%3E%3C/svg%3E");
+      background-repeat: no-repeat; background-position: right 11px center; padding-right: 30px;
+    }
+    .field-input:focus, .field-select:focus { border-color: var(--orange); background: var(--surface); }
+    .span-2 { grid-column: 1 / -1; }
+
+    /* Toggles */
+    .toggle-group { display: flex; flex-direction: column; }
+    .toggle-row {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 9px 0; border-bottom: 1px solid var(--border); gap: 12px;
+    }
+    .toggle-row:last-child { border-bottom: none; }
+    .toggle-label { font-size: 12px; color: var(--text2); line-height: 1.4; }
+    .toggle-switch { position: relative; width: 38px; height: 22px; flex-shrink: 0; }
+    .toggle-switch input { position: absolute; opacity: 0; width: 0; height: 0; }
+    .toggle-track {
+      position: absolute; inset: 0; background: var(--border);
+      border-radius: 11px; cursor: pointer;
+      transition: background var(--t-fast) var(--ease);
+    }
+    .toggle-track::before {
+      content: ''; position: absolute;
+      width: 18px; height: 18px; left: 2px; top: 2px;
+      background: #fff; border-radius: 50%;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.18);
+      transition: transform var(--t-fast) var(--ease);
+    }
+    .toggle-switch input:checked + .toggle-track { background: var(--orange); }
+    .toggle-switch input:checked + .toggle-track::before { transform: translateX(16px); }
+    .toggle-switch input:focus-visible + .toggle-track { outline: 2px solid var(--orange); outline-offset: 2px; }
+
+    /* Instruction box */
+    .instruction-box {
+      background: var(--navy-soft); border: 1px solid var(--navy-border);
+      border-radius: var(--r-lg); padding: 16px; margin-top: 14px;
+    }
+    .instruction-header {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 12px; gap: 10px;
+    }
+    .instruction-chip {
+      display: inline-flex; align-items: center; gap: 7px;
+      font-family: var(--mono); font-size: 10px; font-weight: 700;
+      color: var(--navy); text-transform: uppercase; letter-spacing: 0.08em;
+    }
+    .instruction-dot {
+      width: 7px; height: 7px; border-radius: 50%;
+      background: var(--orange); flex-shrink: 0;
+    }
+    .instruction-text {
+      font-family: var(--mono); font-size: 11.5px; color: var(--text);
+      line-height: 1.85; white-space: pre-wrap; word-break: break-word;
+    }
+
+    /* Hint */
+    .workflow-hint {
+      margin-top: 10px; padding: 9px 14px;
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--r-sm); font-size: 11px; color: var(--text3); line-height: 1.6;
+    }
+    .workflow-hint strong { color: var(--text2); font-weight: 600; }
+
+    /* Output cards */
+    .output-section { display: flex; flex-direction: column; gap: 10px; margin-top: 14px; }
+    .prompt-card {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--r-md); overflow: hidden;
+      transition: border-color var(--t-fast) var(--ease);
+    }
+    .prompt-card:focus-within { border-color: var(--orange-border); }
+    .prompt-card-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 9px 14px; background: var(--surface2);
+      border-bottom: 1px solid var(--border); gap: 8px;
+    }
+    .prompt-card-title {
+      font-family: var(--mono); font-size: 10px; font-weight: 700;
+      color: var(--text2); text-transform: uppercase; letter-spacing: 0.1em;
+    }
+    .prompt-body { padding: 10px 14px; }
+    .prompt-textarea {
+      background: transparent; border: none; width: 100%; outline: none;
+      font-family: var(--mono); font-size: 12px; color: var(--text);
+      line-height: 1.8; resize: vertical; min-height: 68px;
+    }
+    @media (max-width: 600px) { .prompt-textarea { resize: none; } }
+    .prompt-textarea::placeholder { font-family: var(--sans); font-style: italic; font-size: 12px; color: var(--text3); }
+
+    /* Animations */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(8px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .animate-in { animation: fadeUp var(--t-mid) var(--ease) both; }
+
+    /* Toast */
+    .toast {
+      position: fixed; bottom: 20px; right: 20px;
+      background: var(--navy); color: #fff;
+      padding: 10px 16px; border-radius: var(--r-sm);
+      font-size: 12px; font-weight: 500; letter-spacing: 0.01em;
+      opacity: 0; transform: translateY(8px);
+      transition: opacity var(--t-mid) var(--ease), transform var(--t-mid) var(--ease);
+      pointer-events: none; z-index: 9999; max-width: 260px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+    }
+    .dark .toast { background: var(--surface2); color: var(--text); border: 1px solid var(--navy-border); }
+    .toast.show { opacity: 1; transform: translateY(0); }
+
+    .mt-14 { margin-top: 14px; }
+    [hidden] { display: none !important; }
+  </style>
+</head>
+<body>
+<div class="app">
+
+  <header class="header">
+    <div class="logo-lockup">
+      <div class="logo-mark" aria-hidden="true">
+        <svg viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="9" cy="6.5" r="3.2" stroke="#fff" stroke-width="1.6"/>
+          <path d="M2 16c0-3.314 3.134-6 7-6s7 2.686 7 6" stroke="#fff" stroke-width="1.6" stroke-linecap="round"/>
+        </svg>
+      </div>
+      <div>
+        <div class="logo-name">PromptFace</div>
+        <div class="logo-sub">AI Image Prompt Generator</div>
+      </div>
+    </div>
+    <button class="theme-btn" id="theme-btn" aria-label="Toggle colour theme" type="button">🌙</button>
+  </header>
+
+  <!-- Upload zone -->
+  <div id="upload-zone" class="upload-zone" role="button" tabindex="0" aria-label="Upload image — click or drag and drop">
+    <span class="upload-icon" aria-hidden="true">📷</span>
+    <p class="upload-label">Drop your image here or click to browse</p>
+    <p class="upload-hint">JPG · PNG · WEBP</p>
+  </div>
+  <!-- File input OUTSIDE upload zone — prevents double-trigger from event bubbling -->
+  <input type="file" id="file-input" accept="image/jpeg,image/png,image/webp" aria-hidden="true" tabindex="-1" style="position:absolute;opacity:0;pointer-events:none;width:0;height:0" />
+
+  <!-- Main content (hidden until image loaded) -->
+  <div id="main-content" hidden>
+
+    <div class="preview-wrap mt-14 animate-in">
+      <img id="preview-img" class="preview-img" alt="Your uploaded reference image" />
+      <div class="preview-bar">
+        <span class="preview-name" id="preview-name"></span>
+        <div class="preview-actions">
+          <button class="btn btn-ghost" id="change-btn" type="button">Change</button>
+          <button class="btn btn-primary" id="generate-btn" type="button">Generate instruction</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="settings-panel animate-in" style="animation-delay:40ms">
+      <p class="settings-title">Prompt Settings</p>
+      <div class="settings-grid">
+
+        <div class="field">
+          <label class="field-label" for="subject">Subject wording</label>
+          <input class="field-input" type="text" id="subject" value="Black African person" autocomplete="off" spellcheck="false" />
+        </div>
+
+        <div class="field">
+          <label class="field-label" for="aspect">Aspect ratio</label>
+          <select class="field-select" id="aspect">
+            <option value="9:16">9:16 — Portrait</option>
+            <option value="1:1">1:1 — Square</option>
+            <option value="16:9">16:9 — Landscape</option>
+            <option value="4:5">4:5 — Instagram</option>
+            <option value="3:2">3:2 — Standard</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label class="field-label" for="platform">Target platform</label>
+          <select class="field-select" id="platform">
+            <option value="ChatGPT / DALL-E">ChatGPT / DALL-E</option>
+            <option value="Midjourney">Midjourney</option>
+            <option value="Leonardo AI">Leonardo AI</option>
+            <option value="Stable Diffusion">Stable Diffusion</option>
+            <option value="Gemini">Gemini</option>
+            <option value="Any / Universal">Any / Universal</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label class="field-label" for="signature">Watermark / signature</label>
+          <input class="field-input" type="text" id="signature" value="Vuja Tsoaela" autocomplete="off" spellcheck="false" />
+        </div>
+
+        <div class="field span-2">
+          <div class="toggle-group">
+            <div class="toggle-row">
+              <span class="toggle-label" id="lbl-identity">Include identity preservation wording (for faces/selfies)</span>
+              <label class="toggle-switch" aria-labelledby="lbl-identity">
+                <input type="checkbox" id="identity-toggle" checked />
+                <span class="toggle-track" aria-hidden="true"></span>
+              </label>
+            </div>
+            <div class="toggle-row">
+              <span class="toggle-label" id="lbl-neg">Include negative prompt</span>
+              <label class="toggle-switch" aria-labelledby="lbl-neg">
+                <input type="checkbox" id="neg-toggle" checked />
+                <span class="toggle-track" aria-hidden="true"></span>
+              </label>
+            </div>
+            <div class="toggle-row">
+              <span class="toggle-label" id="lbl-fixit">Include fix-it notes section</span>
+              <label class="toggle-switch" aria-labelledby="lbl-fixit">
+                <input type="checkbox" id="fixit-toggle" checked />
+                <span class="toggle-track" aria-hidden="true"></span>
+              </label>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Instruction output -->
+    <div id="instruction-section" hidden>
+
+      <div class="instruction-box animate-in">
+        <div class="instruction-header">
+          <span class="instruction-chip">
+            <span class="instruction-dot" aria-hidden="true"></span>
+            ChatGPT Vision Instruction
+          </span>
+          <button class="btn-copy" id="copy-instruction" type="button" aria-label="Copy instruction">Copy</button>
+        </div>
+        <pre class="instruction-text" id="instruction-text" aria-live="polite"></pre>
+      </div>
+
+      <p class="workflow-hint animate-in" style="animation-delay:30ms">
+        Copy the instruction → open <strong>ChatGPT Plus</strong> → upload the same image → paste → bring the prompts back to the cards below.
+      </p>
+
+      <div class="output-section">
+
+        <div class="prompt-card animate-in" style="animation-delay:50ms">
+          <div class="prompt-card-header">
+            <span class="prompt-card-title">Detailed Prompt</span>
+            <button class="btn-copy" type="button" data-field="detailed">Copy</button>
+          </div>
+          <div class="prompt-body">
+            <textarea class="prompt-textarea" id="detailed" rows="4" placeholder="Paste the detailed prompt here after ChatGPT responds…" aria-label="Detailed prompt"></textarea>
+          </div>
+        </div>
+
+        <div class="prompt-card animate-in" style="animation-delay:70ms">
+          <div class="prompt-card-header">
+            <span class="prompt-card-title">Short Prompt</span>
+            <button class="btn-copy" type="button" data-field="short">Copy</button>
+          </div>
+          <div class="prompt-body">
+            <textarea class="prompt-textarea" id="short" rows="2" placeholder="Paste the short prompt here…" aria-label="Short prompt"></textarea>
+          </div>
+        </div>
+
+        <div class="prompt-card animate-in" id="neg-card" style="animation-delay:90ms">
+          <div class="prompt-card-header">
+            <span class="prompt-card-title">Negative Prompt</span>
+            <button class="btn-copy" type="button" data-field="negative">Copy</button>
+          </div>
+          <div class="prompt-body">
+            <textarea class="prompt-textarea" id="negative" rows="2" placeholder="Paste the negative prompt here…" aria-label="Negative prompt"></textarea>
+          </div>
+        </div>
+
+        <div class="prompt-card animate-in" id="fixit-card" style="animation-delay:110ms">
+          <div class="prompt-card-header">
+            <span class="prompt-card-title">Fix-It Notes</span>
+            <button class="btn-copy" type="button" data-field="fixit">Copy</button>
+          </div>
+          <div class="prompt-body">
+            <textarea class="prompt-textarea" id="fixit" rows="2" placeholder="Paste the fix-it notes here…" aria-label="Fix-it notes"></textarea>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<div class="toast" id="toast" role="status" aria-live="polite" aria-atomic="true"></div>
+
+<script>
+(function () {
+  'use strict';
+
+  const el   = id => document.getElementById(id);
+  const show = elem => elem.removeAttribute('hidden');
+  const hide = elem => elem.setAttribute('hidden', '');
+
+  /* ── Theme ── */
+  function applyTheme(dark) {
+    document.body.classList.toggle('dark', dark);
+    el('theme-btn').textContent = dark ? '☀️' : '🌙';
+    document.querySelector('meta[name="theme-color"]')
+      .setAttribute('content', dark ? '#0A1018' : '#0F1B2D');
+  }
+  applyTheme(localStorage.getItem('pfa-theme') === 'dark');
+  el('theme-btn').addEventListener('click', () => {
+    const next = !document.body.classList.contains('dark');
+    applyTheme(next);
+    localStorage.setItem('pfa-theme', next ? 'dark' : 'light');
+  });
+
+  /* ── Upload ── */
+  const uploadZone  = el('upload-zone');
+  const fileInput   = el('file-input');
+  const mainContent = el('main-content');
+
+  // Click to open picker — input is outside the zone, no bubbling issue
+  uploadZone.addEventListener('click',   () => fileInput.click());
+  uploadZone.addEventListener('keydown', e => {
+    if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); fileInput.click(); }
+  });
+
+  // Drag — use counter to handle child element transitions cleanly
+  let dragCount = 0;
+  uploadZone.addEventListener('dragenter', e => {
+    e.preventDefault(); dragCount++;
+    uploadZone.classList.add('drag');
+  });
+  uploadZone.addEventListener('dragleave', e => {
+    e.preventDefault(); dragCount--;
+    if (dragCount <= 0) { dragCount = 0; uploadZone.classList.remove('drag'); }
+  });
+  uploadZone.addEventListener('dragover', e => e.preventDefault());
+  uploadZone.addEventListener('drop', e => {
+    e.preventDefault(); dragCount = 0; uploadZone.classList.remove('drag');
+    const file = e.dataTransfer.files[0];
+    if (file && file.type.startsWith('image/')) loadFile(file);
+  });
+
+  fileInput.addEventListener('change', () => {
+    if (fileInput.files[0]) loadFile(fileInput.files[0]);
+    fileInput.value = ''; // reset so same file can be re-selected
+  });
+
+  el('change-btn').addEventListener('click', () => {
+    hide(mainContent);
+    hide(el('instruction-section'));
+    show(uploadZone);
+    ['detailed','short','negative','fixit'].forEach(id => { el(id).value = ''; });
+    fileInput.click();
+  });
+
+  function loadFile(file) {
+    const reader = new FileReader();
+    reader.onerror = () => showToast('Could not read file — please try another.');
+    reader.onload = ev => {
+      el('preview-img').src = ev.target.result; // src only set once we have data
+      el('preview-name').textContent = file.name;
+      hide(uploadZone);
+      show(mainContent);
+      hide(el('instruction-section'));
+      ['detailed','short','negative','fixit'].forEach(id => { el(id).value = ''; });
+    };
+    reader.readAsDataURL(file);
+  }
+
+  /* ── Generate ── */
+  el('generate-btn').addEventListener('click', generateInstruction);
+
+  function generateInstruction() {
+    const subject   = el('subject').value.trim()    || 'Black African person';
+    const aspect    = el('aspect').value;
+    const platform  = el('platform').value;
+    const signature = el('signature').value.trim()  || 'Vuja Tsoaela';
+    const identity  = el('identity-toggle').checked;
+    const inclNeg   = el('neg-toggle').checked;
+    const inclFix   = el('fixit-toggle').checked;
+
+    el('neg-card').hidden   = !inclNeg;
+    el('fixit-card').hidden = !inclFix;
+
+    el('instruction-text').textContent = buildInstruction({
+      subject, aspect, platform, signature, identity, inclNeg, inclFix
+    });
+
+    const section = el('instruction-section');
+    show(section);
+
+    // Double rAF ensures layout has settled before scrolling
+    requestAnimationFrame(() => requestAnimationFrame(() => {
+      section.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }));
+  }
+
+  function buildInstruction({ subject, aspect, platform, signature, identity, inclNeg, inclFix }) {
+    const L = [];
+    L.push(`You are an expert AI image prompt engineer. Analyze the uploaded image carefully and generate a complete prompt package optimized for ${platform}.`);
+    L.push('');
+    L.push('Analyze the image and extract ALL of the following:');
+    L.push('- Style and realism level (photorealistic, cinematic, illustrated, painterly, etc.)');
+    L.push('- Mood and emotional tone');
+    L.push('- Lighting direction, quality, softness, and colour temperature');
+    L.push('- Camera angle and lens perspective (eye level, low angle, bokeh, wide, etc.)');
+    L.push('- Composition and framing (rule of thirds, centred, close-up, etc.)');
+    L.push('- Clothing, accessories, and their colours and textures');
+    L.push('- Background and environment (indoor, outdoor, abstract, blurred, etc.)');
+    L.push('- Skin tone, facial features, hair style and texture (if a person is present)');
+    L.push('- Colour grading and overall visual palette');
+    L.push('');
+    L.push(`Describe the subject in all prompts as: ${subject}`);
+    if (identity) {
+      L.push('Include identity preservation wording in every prompt — for example: "preserve exact facial identity", "consistent facial features and likeness", "true likeness".');
+    }
+    L.push(`Aspect ratio for all prompts: ${aspect}`);
+    L.push(`Every prompt must end with exactly: --signature "${signature}" bottom-right corner, subtle watermark style, elegant script font`);
+    L.push('');
+    L.push('Return ONLY the structure below. Use these exact labels. No preamble, no sign-off, no extra commentary:');
+    L.push('');
+    L.push('DETAILED PROMPT:');
+    L.push(`[Comprehensive prompt, 100–200 words, covering all extracted visual elements. Optimised for ${platform}.]`);
+    L.push('');
+    L.push('SHORT PROMPT:');
+    L.push('[Concise version, 20–40 words, most important visual elements only.]');
+    if (inclNeg) {
+      L.push('');
+      L.push('NEGATIVE PROMPT:');
+      L.push('[What to avoid: bad anatomy, blurry, distorted, extra limbs, low quality, duplicate, text, watermark, disfigured face, wrong skin tone, overexposed, underexposed. Add any image-specific issues you observe.]');
+    }
+    if (inclFix) {
+      L.push('');
+      L.push('FIX-IT NOTES:');
+      L.push('[2–3 specific tips: what to adjust if regenerating, what this reference lacks for ideal AI output, common failure points for this image type.]');
+    }
+    return L.join('\n');
+  }
+
+  /* ── Clipboard ── */
+  async function copyToClipboard(text) {
+    if (navigator.clipboard && window.isSecureContext) {
+      await navigator.clipboard.writeText(text);
+    } else {
+      // Fallback: off-screen textarea (works on HTTP and older Safari)
+      const ta = Object.assign(document.createElement('textarea'), {
+        value: text, readOnly: true
+      });
+      ta.style.cssText = 'position:fixed;top:0;left:0;width:1px;height:1px;opacity:0';
+      document.body.appendChild(ta);
+      ta.focus(); ta.select();
+      document.execCommand('copy');
+      document.body.removeChild(ta);
+    }
+  }
+
+  async function handleCopy(text, btn) {
+    try {
+      await copyToClipboard(text);
+      const orig = btn.textContent;
+      btn.textContent = 'Copied!';
+      btn.classList.add('copied');
+      showToast('Copied to clipboard');
+      setTimeout(() => { btn.textContent = orig; btn.classList.remove('copied'); }, 2000);
+    } catch {
+      showToast('Copy failed — please select and copy manually.');
+    }
+  }
+
+  el('copy-instruction').addEventListener('click', function () {
+    const text = el('instruction-text').textContent.trim();
+    if (text) handleCopy(text, this);
+  });
+
+  document.querySelectorAll('[data-field]').forEach(btn => {
+    btn.addEventListener('click', function () {
+      const val = el(this.dataset.field).value.trim();
+      if (!val) { showToast('Paste a prompt into this card first'); return; }
+      handleCopy(val, this);
+    });
+  });
+
+  /* ── Toast ── */
+  let toastTimer = null;
+  function showToast(msg) {
+    const t = el('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => t.classList.remove('show'), 2800);
+  }
+
+}());
+</script>
+</body>
+</html>
