@@ -1,0 +1,143 @@
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Real Talk. Real Creation. Real Hope.</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+      scroll-behavior: smooth;
+    }
+  </style>
+</head>
+<body class="bg-stone-50 text-stone-800">
+  
+  <!-- Hero -->
+  <section class="py-16 px-6 md:px-10 max-w-4xl mx-auto">
+    <h1 class="text-4xl md:text-5xl font-bold mb-6 leading-tight">
+      I create things that feel true.
+    </h1>
+    <p class="text-xl text-stone-600 mb-10">
+      Not perfect. Not polished. Just honest, spiritual, messy, and full of hope.
+    </p>
+
+    <div class="prose prose-stone max-w-none text-lg">
+      <p>
+        Hey. I’m not here to sell you sunshine wrapped in glitter. Life doesn’t work like that.
+      </p>
+      <p>
+        I’m the kind of person who sits with hard questions at 2 a.m. Who wonders if God hears me when my bank account is empty and my heart feels heavy. Who still shows up to create something—even when I’m tired, frustrated, or scared.
+      </p>
+      <p>
+        I swear sometimes. Not for effect. Because some moments need a damn expletive to feel real.
+      </p>
+    </div>
+  </section>
+
+  <!-- Values -->
+  <section class="py-16 bg-white border-t border-b border-stone-200">
+    <div class="max-w-4xl mx-auto px-6 md:px-10">
+      <h2 class="text-3xl font-bold mb-8 text-center">What I stand for</h2>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+        <div class="p-6 bg-stone-50 rounded-lg">
+          <h3 class="font-bold text-lg mb-3">Truth over comfort</h3>
+          <p>I will not feed you fake positivity. I’d rather sit in silence with you than plaster a smile over something that hurts.</p>
+        </div>
+        <div class="p-6 bg-stone-50 rounded-lg">
+          <h3 class="font-bold text-lg mb-3">Family and loyalty</h3>
+          <p>If you earn my trust, I’m with you. Through messes, mistakes, and long nights. Family isn’t just blood—it’s who stays.</p>
+        </div>
+        <div class="p-6 bg-stone-50 rounded-lg">
+          <h3 class="font-bold text-lg mb-3">Spiritual curiosity</h3>
+          <p>I talk to God like He’s in the room with me—sometimes angry, sometimes grateful, always real. Faith isn’t clean. It’s alive.</p>
+        </div>
+        <div class="p-6 bg-stone-50 rounded-lg">
+          <h3 class="font-bold text-lg mb-3">Creative resilience</h3>
+          <p>I create even when I’m broke. Even when I doubt. Even when no one’s watching. Because it’s how I stay human.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Work / Services -->
+  <section class="py-16 px-6 md:px-10 max-w-4xl mx-auto">
+    <h2 class="text-3xl font-bold mb-8">What I make</h2>
+    <div class="space-y-8">
+      <div>
+        <h3 class="font-bold text-xl mb-3">Emotional storytelling</h3>
+        <p>I write like I’m talking to you over coffee—raw, reflective, sometimes sarcastic, always real. If it doesn’t stir something, I didn’t do my job.</p>
+      </div>
+      <div>
+        <h3 class="font-bold text-xl mb-3">Spiritual & symbolic visuals</h3>
+        <p>Posters. Concept art. Digital scenes that feel like prayers. I mix metaphor, mood, and meaning into visuals that linger long after you scroll past.</p>
+      </div>
+      <div>
+        <h3 class="font-bold text-xl mb-3">Creative tech experiments</h3>
+        <p>I play with AI, chatbots, character design—not to replace humanity, but to deepen it. Tech is just another brush if you use it with soul.</p>
+      </div>
+      <div>
+        <h3 class="font-bold text-xl mb-3">Content that breathes</h3>
+        <p>I’m building daily. Not for likes. Not for trends. But to leave something behind that says, “Someone tried. Someone cared.”</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Testimonials -->
+  <section class="py-16 bg-stone-100">
+    <div class="max-w-4xl mx-auto px-6 md:px-10">
+      <h2 class="text-3xl font-bold mb-8 text-center">What people say</h2>
+      <div class="space-y-6">
+        <div class="bg-white p-6 rounded-lg shadow-sm border border-stone-200">
+          <p class="italic text-stone-700">“Your words felt like someone finally named the ache I couldn’t explain.”</p>
+          <p class="mt-4 font-medium">— Marianne, Johannesburg</p>
+        </div>
+        <div class="bg-white p-6 rounded-lg shadow-sm border border-stone-200">
+          <p class="italic text-stone-700">“That poster you made? I keep it above my desk. On hard days, it’s the only thing that reminds me I’m not alone.”</p>
+          <p class="mt-4 font-medium">— Thabo, Pretoria</p>
+        </div>
+        <div class="bg-white p-6 rounded-lg shadow-sm border border-stone-200">
+          <p class="italic text-stone-700">“You don’t sugarcoat. And somehow, that’s what gives me hope.”</p>
+          <p class="mt-4 font-medium">— Leah, Albertsdal</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section class="py-16 px-6 md:px-10 max-w-4xl mx-auto text-center">
+    <h2 class="text-3xl font-bold mb-6">Let’s build something real together</h2>
+    <p class="text-lg text-stone-600 mb-8 max-w-2xl mx-auto">
+      Whether you need a story that cuts deep, a visual that speaks to your soul, or just someone who gets it—
+      I’m here. No fluff. Just presence.
+    </p>
+    <a href="#contact" class="inline-block bg-stone-900 text-white px-8 py-4 rounded-lg font-semibold hover:bg-stone-800 transition">
+      Reach out
+    </a>
+  </section>
+
+  <!-- Contact -->
+  <section id="contact" class="py-16 bg-stone-900 text-stone-100">
+    <div class="max-w-4xl mx-auto px-6 md:px-10">
+      <h2 class="text-3xl font-bold mb-6">Say hello</h2>
+      <p class="mb-8 max-w-2xl">
+        I live in Albertsdal. I’m juggling work, marriage, bills, and dreams—just like you. But I always make space for real connection.
+      </p>
+      <p class="mb-8">
+        Email me at <a href="mailto:hello@yourdomain.com" class="underline">hello@yourdomain.com</a>.  
+        Or DM me on Instagram <a href="#" class="underline">@yourhandle</a>.
+      </p>
+      <p>
+        No bots. No auto-replies. Just me, reading your words and responding like a human.
+      </p>
+    </div>
+  </section>
+
+</body>
+</html>
+```

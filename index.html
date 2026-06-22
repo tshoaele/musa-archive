@@ -1,0 +1,733 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Musa Tshoaele</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;1,300&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --black: #0a0a0a;
+    --white: #f5f4f0;
+    --accent: #c8ff00;
+    --mid: #6b6b6b;
+    --border: #e0dfd9;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--white);
+    color: var(--black);
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 300;
+    overflow-x: hidden;
+  }
+
+  /* NAV */
+  nav {
+    position: fixed; top: 0; left: 0; right: 0;
+    z-index: 100;
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 1.5rem 4rem;
+    background: var(--white);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .nav-logo {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: 1.1rem;
+    letter-spacing: -0.02em;
+    text-decoration: none;
+    color: var(--black);
+  }
+
+  .nav-links {
+    display: flex; gap: 2.5rem; list-style: none;
+  }
+
+  .nav-links a {
+    text-decoration: none;
+    font-size: 0.85rem;
+    color: var(--mid);
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    transition: color 0.2s;
+  }
+
+  .nav-links a:hover { color: var(--black); }
+
+  /* HERO */
+  .hero {
+    min-height: 100vh;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    padding-top: 5rem;
+  }
+
+  .hero-left {
+    padding: 8rem 4rem 6rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    border-right: 1px solid var(--border);
+  }
+
+  .hero-tag {
+    font-size: 0.75rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--mid);
+    margin-bottom: 2rem;
+    display: flex; align-items: center; gap: 0.75rem;
+  }
+
+  .hero-tag::before {
+    content: '';
+    display: block;
+    width: 2rem; height: 1px;
+    background: var(--mid);
+  }
+
+  h1 {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: clamp(3.5rem, 6vw, 5.5rem);
+    line-height: 0.95;
+    letter-spacing: -0.03em;
+    margin-bottom: 2rem;
+  }
+
+  h1 em {
+    font-style: italic;
+    font-weight: 600;
+    color: var(--mid);
+  }
+
+  .hero-desc {
+    font-size: 1.05rem;
+    line-height: 1.7;
+    color: var(--mid);
+    max-width: 420px;
+    margin-bottom: 3rem;
+  }
+
+  .hero-cta {
+    display: flex; gap: 1rem; align-items: center;
+  }
+
+  .btn-primary {
+    background: var(--black);
+    color: var(--white);
+    text-decoration: none;
+    padding: 0.9rem 2rem;
+    font-family: 'Syne', sans-serif;
+    font-weight: 600;
+    font-size: 0.85rem;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    transition: background 0.2s, color 0.2s;
+  }
+
+  .btn-primary:hover {
+    background: var(--accent);
+    color: var(--black);
+  }
+
+  .btn-ghost {
+    text-decoration: none;
+    font-size: 0.85rem;
+    color: var(--mid);
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 2px;
+    transition: color 0.2s, border-color 0.2s;
+  }
+
+  .btn-ghost:hover { color: var(--black); border-color: var(--black); }
+
+  .hero-right {
+    padding: 8rem 4rem 6rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+  }
+
+  .hero-stats {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2px;
+    margin-bottom: 4rem;
+  }
+
+  .stat {
+    padding: 2rem;
+    border: 1px solid var(--border);
+    background: var(--white);
+  }
+
+  .stat-number {
+    font-family: 'Syne', sans-serif;
+    font-size: 2.5rem;
+    font-weight: 800;
+    line-height: 1;
+    margin-bottom: 0.5rem;
+  }
+
+  .stat-label {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--mid);
+  }
+
+  .hero-platforms {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--mid);
+    margin-bottom: 1rem;
+  }
+
+  .platform-list {
+    display: flex; flex-wrap: wrap; gap: 0.5rem;
+  }
+
+  .platform-tag {
+    border: 1px solid var(--border);
+    padding: 0.4rem 0.9rem;
+    font-size: 0.75rem;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: var(--black);
+  }
+
+  /* SECTION SHARED */
+  section {
+    border-top: 1px solid var(--border);
+  }
+
+  .section-header {
+    padding: 3rem 4rem 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .section-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+  }
+
+  .section-count {
+    font-size: 0.75rem;
+    color: var(--mid);
+    letter-spacing: 0.05em;
+  }
+
+  /* PILLARS */
+  .pillars {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .pillar {
+    padding: 3rem 4rem;
+    border-right: 1px solid var(--border);
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.5s, transform 0.5s;
+  }
+
+  .pillar:last-child { border-right: none; }
+  .pillar.visible { opacity: 1; transform: translateY(0); }
+
+  .pillar-num {
+    font-family: 'Syne', sans-serif;
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    color: var(--mid);
+    margin-bottom: 2rem;
+  }
+
+  .pillar-icon {
+    width: 2.5rem; height: 2.5rem;
+    background: var(--black);
+    display: flex; align-items: center; justify-content: center;
+    margin-bottom: 1.5rem;
+  }
+
+  .pillar-icon svg { width: 1.1rem; height: 1.1rem; fill: var(--accent); }
+
+  .pillar h3 {
+    font-family: 'Syne', sans-serif;
+    font-size: 1.25rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+    letter-spacing: -0.02em;
+  }
+
+  .pillar p {
+    font-size: 0.9rem;
+    line-height: 1.7;
+    color: var(--mid);
+  }
+
+  /* WRITING */
+  .writing-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .writing-card {
+    padding: 3rem 4rem;
+    border-right: 1px solid var(--border);
+    cursor: pointer;
+    transition: background 0.2s;
+    text-decoration: none;
+    color: inherit;
+    display: block;
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.5s, transform 0.5s, background 0.2s;
+  }
+
+  .writing-card:last-child { border-right: none; }
+  .writing-card:hover { background: var(--black); }
+  .writing-card:hover .writing-title,
+  .writing-card:hover .writing-excerpt,
+  .writing-card:hover .writing-meta { color: var(--white); }
+  .writing-card:hover .writing-tag { border-color: #333; color: #999; }
+  .writing-card.visible { opacity: 1; transform: translateY(0); }
+
+  .writing-tag {
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--mid);
+    border: 1px solid var(--border);
+    display: inline-block;
+    padding: 0.3rem 0.7rem;
+    margin-bottom: 1.5rem;
+    transition: border-color 0.2s, color 0.2s;
+  }
+
+  .writing-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 1.15rem;
+    font-weight: 700;
+    line-height: 1.3;
+    letter-spacing: -0.02em;
+    margin-bottom: 1rem;
+    transition: color 0.2s;
+  }
+
+  .writing-excerpt {
+    font-size: 0.875rem;
+    line-height: 1.7;
+    color: var(--mid);
+    margin-bottom: 2rem;
+    transition: color 0.2s;
+  }
+
+  .writing-meta {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--mid);
+    transition: color 0.2s;
+  }
+
+  /* AI STACK */
+  .stack-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+  }
+
+  .stack-item {
+    padding: 2.5rem 4rem;
+    border-right: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.4s, transform 0.4s;
+  }
+
+  .stack-item:nth-child(4n) { border-right: none; }
+  .stack-item.visible { opacity: 1; transform: translateY(0); }
+
+  .stack-name {
+    font-family: 'Syne', sans-serif;
+    font-size: 0.9rem;
+    font-weight: 700;
+    margin-bottom: 0.4rem;
+    letter-spacing: -0.01em;
+  }
+
+  .stack-desc {
+    font-size: 0.8rem;
+    color: var(--mid);
+    line-height: 1.5;
+  }
+
+  .stack-dot {
+    width: 6px; height: 6px;
+    background: var(--accent);
+    border-radius: 50%;
+    margin-bottom: 1rem;
+    box-shadow: 0 0 8px var(--accent);
+  }
+
+  /* CONTACT */
+  .contact-inner {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .contact-left {
+    padding: 5rem 4rem;
+    border-right: 1px solid var(--border);
+  }
+
+  .contact-left h2 {
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(2rem, 4vw, 3.5rem);
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    line-height: 1;
+    margin-bottom: 1.5rem;
+  }
+
+  .contact-left p {
+    color: var(--mid);
+    font-size: 0.95rem;
+    line-height: 1.7;
+    max-width: 360px;
+    margin-bottom: 2.5rem;
+  }
+
+  .contact-right {
+    padding: 5rem 4rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+
+  .contact-link {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.5rem 0;
+    border-bottom: 1px solid var(--border);
+    text-decoration: none;
+    color: var(--black);
+    transition: padding-left 0.2s;
+  }
+
+  .contact-link:hover { padding-left: 0.5rem; }
+
+  .contact-link-name {
+    font-family: 'Syne', sans-serif;
+    font-size: 1rem;
+    font-weight: 700;
+  }
+
+  .contact-link-handle {
+    font-size: 0.8rem;
+    color: var(--mid);
+  }
+
+  .arrow {
+    font-size: 1.2rem;
+    transition: transform 0.2s;
+  }
+
+  .contact-link:hover .arrow { transform: translate(4px, -4px); }
+
+  /* FOOTER */
+  footer {
+    border-top: 1px solid var(--border);
+    padding: 2rem 4rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  footer p {
+    font-size: 0.75rem;
+    color: var(--mid);
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+  }
+
+  .footer-accent {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: 0.75rem;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+  }
+
+  /* ANIMATIONS */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(30px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .hero-tag { animation: fadeUp 0.6s ease forwards; }
+  h1 { animation: fadeUp 0.6s 0.1s ease forwards; opacity: 0; }
+  .hero-desc { animation: fadeUp 0.6s 0.2s ease forwards; opacity: 0; }
+  .hero-cta { animation: fadeUp 0.6s 0.3s ease forwards; opacity: 0; }
+  .hero-stats { animation: fadeUp 0.6s 0.2s ease forwards; opacity: 0; }
+  .platform-list { animation: fadeUp 0.6s 0.3s ease forwards; opacity: 0; }
+
+  /* RESPONSIVE */
+  @media (max-width: 900px) {
+    nav { padding: 1.2rem 2rem; }
+    .nav-links { display: none; }
+    .hero { grid-template-columns: 1fr; }
+    .hero-left { padding: 6rem 2rem 3rem; border-right: none; border-bottom: 1px solid var(--border); }
+    .hero-right { padding: 3rem 2rem; }
+    .pillars, .writing-grid { grid-template-columns: 1fr; }
+    .pillar, .writing-card { border-right: none; border-bottom: 1px solid var(--border); padding: 2.5rem 2rem; }
+    .stack-grid { grid-template-columns: 1fr 1fr; }
+    .stack-item { padding: 2rem; }
+    .contact-inner { grid-template-columns: 1fr; }
+    .contact-left { padding: 3rem 2rem; border-right: none; border-bottom: 1px solid var(--border); }
+    .contact-right { padding: 3rem 2rem; }
+    .section-header { padding: 2rem; }
+    footer { padding: 2rem; flex-direction: column; gap: 0.5rem; text-align: center; }
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="#" class="nav-logo">MT</a>
+  <ul class="nav-links">
+    <li><a href="#work">Work</a></li>
+    <li><a href="#writing">Writing</a></li>
+    <li><a href="#stack">AI Stack</a></li>
+    <li><a href="#contact">Contact</a></li>
+  </ul>
+</nav>
+
+<!-- HERO -->
+<section class="hero" style="border-top:none;">
+  <div class="hero-left">
+    <p class="hero-tag">Smart Metering · Content · AI</p>
+    <h1>Musa<br><em>Tshoaele</em></h1>
+    <p class="hero-desc">Writer. Content creator. AI workflow builder. I document the intersection of technology, mindset, and daily life from Alberton, South Africa.</p>
+    <div class="hero-cta">
+      <a href="https://tshoaele.wordpress.com" target="_blank" class="btn-primary">Read the Blog</a>
+      <a href="#contact" class="btn-ghost">Get in touch</a>
+    </div>
+  </div>
+  <div class="hero-right">
+    <div class="hero-stats">
+      <div class="stat">
+        <div class="stat-number">5+</div>
+        <div class="stat-label">Platforms</div>
+      </div>
+      <div class="stat">
+        <div class="stat-number">Daily</div>
+        <div class="stat-label">Publishing</div>
+      </div>
+      <div class="stat">
+        <div class="stat-number">AI</div>
+        <div class="stat-label">Workflows</div>
+      </div>
+      <div class="stat">
+        <div class="stat-number">ZA</div>
+        <div class="stat-label">Based</div>
+      </div>
+    </div>
+    <p class="hero-platforms">Active on</p>
+    <div class="platform-list">
+      <span class="platform-tag">LinkedIn</span>
+      <span class="platform-tag">TikTok</span>
+      <span class="platform-tag">WordPress</span>
+      <span class="platform-tag">X</span>
+      <span class="platform-tag">Facebook</span>
+    </div>
+  </div>
+</section>
+
+<!-- WHAT I DO -->
+<section id="work">
+  <div class="section-header">
+    <span class="section-title">What I Do</span>
+    <span class="section-count">03 Pillars</span>
+  </div>
+  <div class="pillars">
+    <div class="pillar">
+      <div class="pillar-num">01</div>
+      <div class="pillar-icon">
+        <svg viewBox="0 0 24 24"><path d="M12 20h9M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z" stroke="#c8ff00" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </div>
+      <h3>Writing & Essays</h3>
+      <p>Candid, introspective personal essays exploring mindset, emotional growth, and the texture of everyday life. Published daily on WordPress and syndicated across platforms.</p>
+    </div>
+    <div class="pillar">
+      <div class="pillar-num">02</div>
+      <div class="pillar-icon">
+        <svg viewBox="0 0 24 24"><path d="M15 10l4.553-2.069A1 1 0 0121 8.87v6.26a1 1 0 01-1.447.894L15 14M3 8a2 2 0 012-2h10a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2V8z" stroke="#c8ff00" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </div>
+      <h3>Content Creation</h3>
+      <p>Daily multi-platform content spanning anime culture, personal development, autism awareness, and humor. Building an audience through consistency and authenticity.</p>
+    </div>
+    <div class="pillar">
+      <div class="pillar-num">03</div>
+      <div class="pillar-icon">
+        <svg viewBox="0 0 24 24"><path d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" stroke="#c8ff00" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </div>
+      <h3>AI Automation</h3>
+      <p>Building free-tier AI content pipelines using Make.com, Gemini, fal.ai, and Publer. Turning manual workflows into automated systems that run while I sleep.</p>
+    </div>
+  </div>
+</section>
+
+<!-- WRITING -->
+<section id="writing">
+  <div class="section-header">
+    <span class="section-title">Recent Writing</span>
+    <span class="section-count"><a href="https://tshoaele.wordpress.com" target="_blank" style="color:var(--mid);text-decoration:none;letter-spacing:0.05em;font-size:0.75rem;">View All →</a></span>
+  </div>
+  <div class="writing-grid">
+    <a href="https://tshoaele.wordpress.com" target="_blank" class="writing-card">
+      <span class="writing-tag">Mindset</span>
+      <div class="writing-title">Damned If You Do, Damned If You Don't</div>
+      <p class="writing-excerpt">On the impossible double binds we find ourselves in and what it means to act anyway.</p>
+      <div class="writing-meta">Personal Essay</div>
+    </a>
+    <a href="https://tshoaele.wordpress.com" target="_blank" class="writing-card">
+      <span class="writing-tag">Language</span>
+      <div class="writing-title">The Worlds Your Words Create</div>
+      <p class="writing-excerpt">How the language we use shapes our reality and the realities of people around us.</p>
+      <div class="writing-meta">Personal Essay</div>
+    </a>
+    <a href="https://tshoaele.wordpress.com" target="_blank" class="writing-card">
+      <span class="writing-tag">Emotions</span>
+      <div class="writing-title">When Your Feelings Lie to You</div>
+      <p class="writing-excerpt">Do the opposite. A meditation on emotional intelligence and why the gut is not always right.</p>
+      <div class="writing-meta">Personal Essay</div>
+    </a>
+  </div>
+</section>
+
+<!-- AI STACK -->
+<section id="stack">
+  <div class="section-header">
+    <span class="section-title">AI Stack</span>
+    <span class="section-count">Tools I Build With</span>
+  </div>
+  <div class="stack-grid">
+    <div class="stack-item">
+      <div class="stack-dot"></div>
+      <div class="stack-name">Make.com</div>
+      <div class="stack-desc">Automation workflows connecting every tool in my pipeline</div>
+    </div>
+    <div class="stack-item">
+      <div class="stack-dot"></div>
+      <div class="stack-name">Gemini API</div>
+      <div class="stack-desc">AI prompt generation and content ideation at scale</div>
+    </div>
+    <div class="stack-item">
+      <div class="stack-dot"></div>
+      <div class="stack-name">fal.ai</div>
+      <div class="stack-desc">AI image generation for visual content creation</div>
+    </div>
+    <div class="stack-item">
+      <div class="stack-dot"></div>
+      <div class="stack-name">Publer</div>
+      <div class="stack-desc">Multi-platform scheduling and publishing automation</div>
+    </div>
+    <div class="stack-item">
+      <div class="stack-dot"></div>
+      <div class="stack-name">Claude</div>
+      <div class="stack-desc">Writing, strategy, and creative direction partner</div>
+    </div>
+    <div class="stack-item">
+      <div class="stack-dot"></div>
+      <div class="stack-name">Google Sheets</div>
+      <div class="stack-desc">Content pipeline backbone and data orchestration</div>
+    </div>
+    <div class="stack-item">
+      <div class="stack-dot"></div>
+      <div class="stack-name">WordPress</div>
+      <div class="stack-desc">Long-form blog home with a high-volume publishing history</div>
+    </div>
+    <div class="stack-item">
+      <div class="stack-dot"></div>
+      <div class="stack-name">GitHub</div>
+      <div class="stack-desc">Code hosting and deployment for web projects</div>
+    </div>
+  </div>
+</section>
+
+<!-- CONTACT -->
+<section id="contact">
+  <div class="section-header">
+    <span class="section-title">Connect</span>
+    <span class="section-count">Find me online</span>
+  </div>
+  <div class="contact-inner">
+    <div class="contact-left">
+      <h2>Let's<br>talk.</h2>
+      <p>Whether it's about content, AI automation, writing, or metering technology. I'm always open to a good conversation.</p>
+      <a href="https://www.linkedin.com/in/musatshoaele" target="_blank" class="btn-primary">Connect on LinkedIn</a>
+    </div>
+    <div class="contact-right">
+      <a href="https://www.linkedin.com/in/musatshoaele" target="_blank" class="contact-link">
+        <div>
+          <div class="contact-link-name">LinkedIn</div>
+          <div class="contact-link-handle">musatshoaele</div>
+        </div>
+        <span class="arrow">↗</span>
+      </a>
+      <a href="https://tshoaele.wordpress.com" target="_blank" class="contact-link">
+        <div>
+          <div class="contact-link-name">Blog</div>
+          <div class="contact-link-handle">tshoaele.wordpress.com</div>
+        </div>
+        <span class="arrow">↗</span>
+      </a>
+      <a href="https://github.com/tshoaele" target="_blank" class="contact-link">
+        <div>
+          <div class="contact-link-name">GitHub</div>
+          <div class="contact-link-handle">tshoaele</div>
+        </div>
+        <span class="arrow">↗</span>
+      </a>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <p>© 2026 Musa Tshoaele · Alberton, South Africa</p>
+  <p class="footer-accent">Built with intention.</p>
+</footer>
+
+<script>
+  // Intersection Observer for scroll animations
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach((entry, i) => {
+      if (entry.isIntersecting) {
+        setTimeout(() => entry.target.classList.add('visible'), i * 80);
+      }
+    });
+  }, { threshold: 0.1 });
+
+  document.querySelectorAll('.pillar, .writing-card, .stack-item').forEach(el => observer.observe(el));
+</script>
+</body>
+</html>
