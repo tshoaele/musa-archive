@@ -1,0 +1,512 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Storytelling Studio</title>
+<style>
+  :root{
+    --bg:#F7F6F2;
+    --surface:#FFFFFF;
+    --surface-2:#F0EEE8;
+    --text:#1C1B19;
+    --text-secondary:#6B6A66;
+    --border:#DEDCD5;
+    --accent:#3C3489;
+    --accent-soft:#EEEDFE;
+    --accent-text:#26215C;
+    --radius-md:8px;
+    --radius-lg:12px;
+    --font:'Segoe UI', system-ui, -apple-system, Arial, sans-serif;
+  }
+  [data-theme="dark"]{
+    --bg:#15151A;
+    --surface:#1E1E26;
+    --surface-2:#26262F;
+    --text:#EDEDEF;
+    --text-secondary:#9A99A2;
+    --border:#34333E;
+    --accent:#7F77DD;
+    --accent-soft:#26215C;
+    --accent-text:#CECBF6;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    font-family:var(--font);
+    background:var(--bg);
+    color:var(--text);
+    transition:background .2s, color .2s;
+  }
+  .app{max-width:760px;margin:0 auto;padding:24px 20px 80px;}
+  header{display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;}
+  .brand{display:flex;align-items:center;gap:10px;}
+  .brand .logo{
+    width:36px;height:36px;border-radius:var(--radius-md);
+    background:var(--accent);color:#fff;display:flex;align-items:center;justify-content:center;
+    font-weight:700;font-size:16px;flex-shrink:0;
+  }
+  .brand h1{font-size:18px;margin:0;font-weight:600;}
+  .brand p{font-size:12px;margin:0;color:var(--text-secondary);}
+  .theme-toggle{
+    border:1px solid var(--border);background:var(--surface);color:var(--text);
+    border-radius:999px;padding:8px 14px;font-size:13px;cursor:pointer;
+    display:flex;align-items:center;gap:6px;transition:.15s;
+  }
+  .theme-toggle:hover{border-color:var(--accent);}
+  .card{
+    background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);
+    padding:20px;margin-bottom:18px;
+  }
+  .card h2{font-size:16px;margin:0 0 4px;font-weight:600;}
+  .card .sub{font-size:13px;color:var(--text-secondary);margin:0 0 16px;}
+  label{font-size:13px;font-weight:600;display:block;margin:14px 0 6px;}
+  textarea, select, input[type=text]{
+    width:100%;border:1px solid var(--border);border-radius:var(--radius-md);
+    background:var(--surface-2);color:var(--text);padding:10px 12px;font-size:14px;
+    font-family:var(--font);resize:vertical;
+  }
+  textarea:focus, select:focus, input:focus{outline:2px solid var(--accent);outline-offset:1px;}
+  .pill-group{display:flex;flex-wrap:wrap;gap:8px;}
+  .pill{
+    border:1px solid var(--border);border-radius:999px;padding:7px 14px;font-size:13px;
+    cursor:pointer;background:var(--surface-2);color:var(--text);transition:.15s;
+  }
+  .pill.active{background:var(--accent);color:#fff;border-color:var(--accent);}
+  .btn{
+    background:var(--accent);color:#fff;border:none;border-radius:var(--radius-md);
+    padding:11px 20px;font-size:14px;font-weight:600;cursor:pointer;transition:.15s;
+  }
+  .btn:hover{opacity:.9;}
+  .btn.secondary{
+    background:var(--surface-2);color:var(--text);border:1px solid var(--border);
+  }
+  .btn:disabled{opacity:.5;cursor:not-allowed;}
+  .row{display:flex;gap:10px;flex-wrap:wrap;margin-top:18px;}
+  .hidden{display:none;}
+  .badge{
+    display:inline-block;font-size:11px;font-weight:600;padding:3px 9px;border-radius:999px;
+    background:var(--accent-soft);color:var(--accent-text);margin-right:6px;
+  }
+  .scene{
+    border:1px solid var(--border);border-radius:var(--radius-md);padding:14px;margin-bottom:12px;
+    background:var(--surface-2);
+  }
+  .scene h3{margin:0 0 8px;font-size:14px;}
+  .scene .meta{font-size:12px;color:var(--text-secondary);margin-bottom:8px;}
+  .scene .field{font-size:13px;line-height:1.5;margin-bottom:6px;}
+  .scene .field b{font-weight:600;}
+  .model-tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px;}
+  .model-tab{
+    border:1px solid var(--border);border-radius:var(--radius-md);padding:6px 12px;
+    font-size:12px;cursor:pointer;background:var(--surface-2);color:var(--text);
+  }
+  .model-tab.active{background:var(--accent);color:#fff;border-color:var(--accent);}
+  pre{
+    background:var(--surface-2);border:1px solid var(--border);border-radius:var(--radius-md);
+    padding:12px;font-size:12px;white-space:pre-wrap;word-break:break-word;font-family:Consolas,monospace;
+    margin:0;
+  }
+  .copy-btn{
+    font-size:12px;border:1px solid var(--border);background:var(--surface);color:var(--text);
+    border-radius:var(--radius-md);padding:5px 10px;cursor:pointer;float:right;margin-bottom:6px;
+  }
+  .spinner{
+    display:inline-block;width:14px;height:14px;border:2px solid var(--border);
+    border-top-color:var(--accent);border-radius:50%;animation:spin .7s linear infinite;
+    vertical-align:-2px;margin-right:6px;
+  }
+  @keyframes spin{to{transform:rotate(360deg);}}
+  .error{
+    background:#FCEBEB;border:1px solid #F09595;color:#791F1F;border-radius:var(--radius-md);
+    padding:10px 12px;font-size:13px;margin-top:10px;
+  }
+  [data-theme="dark"] .error{background:#501313;border-color:#791F1F;color:#F7C1C1;}
+  .footer-note{font-size:12px;color:var(--text-secondary);text-align:center;margin-top:24px;}
+  .step-indicator{display:flex;gap:6px;margin-bottom:18px;}
+  .step-dot{height:4px;flex:1;border-radius:2px;background:var(--border);}
+  .step-dot.done{background:var(--accent);}
+</style>
+</head>
+<body data-theme="light">
+<div class="app">
+
+  <header>
+    <div class="brand">
+      <div class="logo">AI</div>
+      <div>
+        <h1>AI Storytelling Studio</h1>
+        <p>Turn one thought into a full production blueprint</p>
+      </div>
+    </div>
+    <button class="theme-toggle" id="themeToggle">
+      <span id="themeIcon">&#9728;</span> <span id="themeLabel">Light</span>
+    </button>
+  </header>
+
+  <div class="step-indicator">
+    <div class="step-dot done" id="dot1"></div>
+    <div class="step-dot" id="dot2"></div>
+    <div class="step-dot" id="dot3"></div>
+  </div>
+
+  <!-- SCREEN 1: INPUT -->
+  <div class="card" id="screen1">
+    <h2>Step 1 — Your idea</h2>
+    <p class="sub">Drop in a quote, a journal thought, or a post. One sentence is enough.</p>
+    <label for="ideaInput">Idea</label>
+    <textarea id="ideaInput" rows="3" placeholder="e.g. Demons are just inner thoughts wearing a scarier name.">Fear is imagination working against you.</textarea>
+    <div class="row">
+      <button class="btn" id="toStep2">Continue</button>
+    </div>
+  </div>
+
+  <!-- SCREEN 2: CLARIFYING QUESTIONS -->
+  <div class="card hidden" id="screen2">
+    <h2>Step 2 — Direction</h2>
+    <p class="sub">Three quick choices shape the whole blueprint.</p>
+
+    <label>Emotion</label>
+    <div class="pill-group" id="emotionGroup">
+      <div class="pill" data-val="Reflective">Reflective</div>
+      <div class="pill" data-val="Motivational">Motivational</div>
+      <div class="pill" data-val="Dark">Dark</div>
+      <div class="pill" data-val="Hopeful">Hopeful</div>
+      <div class="pill" data-val="Tense">Tense</div>
+      <div class="pill" data-val="Inspirational">Inspirational</div>
+    </div>
+
+    <label>Platform</label>
+    <div class="pill-group" id="platformGroup">
+      <div class="pill" data-val="TikTok">TikTok</div>
+      <div class="pill" data-val="Instagram Reels">Instagram Reels</div>
+      <div class="pill" data-val="YouTube Shorts">YouTube Shorts</div>
+      <div class="pill" data-val="LinkedIn Video">LinkedIn Video</div>
+    </div>
+
+    <label>Narration style</label>
+    <div class="pill-group" id="narrationGroup">
+      <div class="pill" data-val="Philosophical thinker">Philosophical thinker</div>
+      <div class="pill" data-val="Documentary">Documentary</div>
+      <div class="pill" data-val="Anime monologue">Anime monologue</div>
+      <div class="pill" data-val="Motivational speaker">Motivational speaker</div>
+      <div class="pill" data-val="Casual storyteller">Casual storyteller</div>
+    </div>
+
+    <div class="row">
+      <button class="btn secondary" id="backTo1">Back</button>
+      <button class="btn" id="toStep3">Generate blueprint</button>
+    </div>
+    <div id="genError"></div>
+  </div>
+
+  <!-- SCREEN 3: OUTPUT -->
+  <div class="card hidden" id="screen3">
+    <h2>Step 3 — Production blueprint</h2>
+    <p class="sub" id="loadingMsg"><span class="spinner"></span> Generating your story...</p>
+    <div id="output" class="hidden"></div>
+    <div class="row" id="resultRow" style="display:none;">
+      <button class="btn secondary" id="backTo2">Adjust direction</button>
+      <button class="btn secondary" id="regenerate">Regenerate</button>
+      <button class="btn secondary" id="newIdea">New idea</button>
+    </div>
+  </div>
+
+  <p class="footer-note">MVP scope: idea &rarr; story &rarr; scenes &rarr; narration &rarr; model prompts. Video, voice and music generation are planned for later versions.</p>
+
+</div>
+
+<script>
+// ---------- Theme toggle ----------
+const themeToggle = document.getElementById('themeToggle');
+const themeIcon = document.getElementById('themeIcon');
+const themeLabel = document.getElementById('themeLabel');
+function applyTheme(t){
+  document.body.setAttribute('data-theme', t);
+  themeIcon.innerHTML = t === 'dark' ? '&#9790;' : '&#9728;';
+  themeLabel.textContent = t === 'dark' ? 'Dark' : 'Light';
+}
+let currentTheme = 'light';
+applyTheme(currentTheme);
+themeToggle.addEventListener('click', () => {
+  currentTheme = currentTheme === 'light' ? 'dark' : 'light';
+  applyTheme(currentTheme);
+});
+
+// ---------- State ----------
+const state = {
+  idea: '',
+  emotion: 'Reflective',
+  platform: 'TikTok',
+  narration: 'Philosophical thinker'
+};
+
+// ---------- Pill selection ----------
+function setupPillGroup(id, stateKey){
+  const group = document.getElementById(id);
+  const pills = group.querySelectorAll('.pill');
+  pills.forEach(p => {
+    if (p.dataset.val === state[stateKey]) p.classList.add('active');
+    p.addEventListener('click', () => {
+      pills.forEach(x => x.classList.remove('active'));
+      p.classList.add('active');
+      state[stateKey] = p.dataset.val;
+    });
+  });
+}
+setupPillGroup('emotionGroup', 'emotion');
+setupPillGroup('platformGroup', 'platform');
+setupPillGroup('narrationGroup', 'narration');
+
+// ---------- Navigation ----------
+const screen1 = document.getElementById('screen1');
+const screen2 = document.getElementById('screen2');
+const screen3 = document.getElementById('screen3');
+const dot2 = document.getElementById('dot2');
+const dot3 = document.getElementById('dot3');
+
+document.getElementById('toStep2').addEventListener('click', () => {
+  const idea = document.getElementById('ideaInput').value.trim();
+  if (!idea){
+    document.getElementById('ideaInput').style.outline = '2px solid #E24B4A';
+    return;
+  }
+  state.idea = idea;
+  screen1.classList.add('hidden');
+  screen2.classList.remove('hidden');
+  dot2.classList.add('done');
+});
+
+document.getElementById('backTo1').addEventListener('click', () => {
+  screen2.classList.add('hidden');
+  screen1.classList.remove('hidden');
+  dot2.classList.remove('done');
+});
+
+document.getElementById('backTo2').addEventListener('click', () => {
+  screen3.classList.add('hidden');
+  screen2.classList.remove('hidden');
+  dot3.classList.remove('done');
+});
+
+document.getElementById('newIdea').addEventListener('click', () => {
+  screen3.classList.add('hidden');
+  screen1.classList.remove('hidden');
+  dot2.classList.remove('done');
+  dot3.classList.remove('done');
+  document.getElementById('output').classList.add('hidden');
+  document.getElementById('resultRow').style.display = 'none';
+  document.getElementById('loadingMsg').classList.remove('hidden');
+});
+
+document.getElementById('toStep3').addEventListener('click', () => {
+  screen2.classList.add('hidden');
+  screen3.classList.remove('hidden');
+  dot3.classList.add('done');
+  generateBlueprint();
+});
+
+document.getElementById('regenerate').addEventListener('click', () => {
+  document.getElementById('output').classList.add('hidden');
+  document.getElementById('resultRow').style.display = 'none';
+  document.getElementById('loadingMsg').classList.remove('hidden');
+  generateBlueprint();
+});
+
+// ---------- Model prompt generator ----------
+const MODELS = ['Veo', 'Kling', 'Higgsfield', 'Sora', 'Runway', 'Pika'];
+
+function buildModelPrompt(model, visualPrompt, camera, lighting, motion){
+  switch(model){
+    case 'Veo':
+      return `${visualPrompt} Camera: ${camera}. Lighting: ${lighting}. Motion: ${motion}. Style: cinematic, photorealistic, 16:9, natural color grading.`;
+    case 'Kling':
+      return `${visualPrompt}\n[Camera: ${camera}] [Lighting: ${lighting}] [Motion: ${motion}]\nHigh detail, smooth motion, consistent character identity.`;
+    case 'Higgsfield':
+      return `${visualPrompt} -- camera_movement: ${camera.toLowerCase()} -- lighting: ${lighting.toLowerCase()} -- motion: ${motion.toLowerCase()} -- quality: cinematic 4k`;
+    case 'Sora':
+      return `A short cinematic clip. ${visualPrompt} The camera performs a ${camera.toLowerCase()}. Lighting is ${lighting.toLowerCase()}. ${motion} adds natural movement throughout the shot.`;
+    case 'Runway':
+      return `${visualPrompt}\nMotion: ${camera.toLowerCase()}, ${motion.toLowerCase()}\nLighting: ${lighting.toLowerCase()}\nGen-4 style, smooth temporal coherence.`;
+    case 'Pika':
+      return `${visualPrompt} | camera: ${camera.toLowerCase()} | lighting: ${lighting.toLowerCase()} | fx: ${motion.toLowerCase()} | aspect 9:16`;
+    default:
+      return visualPrompt;
+  }
+}
+
+// ---------- Generation ----------
+async function generateBlueprint(){
+  const out = document.getElementById('output');
+  const loadingMsg = document.getElementById('loadingMsg');
+  const resultRow = document.getElementById('resultRow');
+  const errBox = document.getElementById('genError');
+  errBox.innerHTML = '';
+  out.classList.add('hidden');
+  resultRow.style.display = 'none';
+  loadingMsg.classList.remove('hidden');
+
+  const systemPrompt = `You are the story engine for "AI Storytelling Studio", an app that converts a short idea into a complete short-form video production blueprint.
+
+Given an idea, an emotion, a platform, and a narration style, return ONLY valid JSON (no markdown fences, no preamble) matching this exact shape:
+
+{
+  "hook": "a punchy opening line/question for the video",
+  "theme": "one to three word theme",
+  estimatedRuntime": "e.g. 30 seconds",
+  "voiceoverScript": "full narration script, 3-6 short lines separated by \\n",
+  "performanceNotes": ["note1","note2","note3"],
+  "musicTimeline": [
+    {"range":"0:00-0:08","description":"music description"},
+    {"range":"0:08-0:20","description":"music description"},
+    {"range":"0:20-0:30","description":"music description"}
+  ],
+  "musicStyle": "one of: Lo-fi, Cinematic, Anime OST, Piano, Epic orchestral, Dark ambient",
+  "scenes": [
+    {
+      "title": "short scene title",
+      "duration": "Ns",
+      "visualPrompt": "detailed visual description for AI image/video generation, 1-3 sentences",
+      "narration": "narration line for this scene",
+      "camera": "one of: Slow push-in, Orbit, Crane shot, Handheld, Dolly",
+      "lighting": "one of: Golden hour, Neon cyberpunk, Studio, Moonlight, High contrast",
+      "motion": "one of: Rain, Wind, Cloth movement, Hair movement, Energy effects"
+    }
+  ],
+  "editingPlan": ["step1","step2","step3","step4","step5"]
+}
+
+Produce 3-5 scenes whose durations sum to approximately the estimated runtime. Match tone to the requested emotion, platform, and narration style. Return ONLY the JSON object.`;
+
+  const userPrompt = `Idea: "${state.idea}"
+Emotion: ${state.emotion}
+Platform: ${state.platform}
+Narration style: ${state.narration}`;
+
+  try{
+    const response = await fetch("https://api.anthropic.com/v1/messages", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        model: "claude-sonnet-4-6",
+        max_tokens: 2000,
+        system: systemPrompt,
+        messages: [{ role: "user", content: userPrompt }]
+      })
+    });
+
+    if (!response.ok){
+      throw new Error("Request failed with status " + response.status);
+    }
+
+    const data = await response.json();
+    const textBlock = data.content.find(b => b.type === 'text');
+    if (!textBlock) throw new Error("No text returned");
+
+    let clean = textBlock.text.trim().replace(/^```json/, '').replace(/^```/, '').replace(/```$/, '').trim();
+    const blueprint = JSON.parse(clean);
+
+    renderBlueprint(blueprint);
+    loadingMsg.classList.add('hidden');
+    out.classList.remove('hidden');
+    resultRow.style.display = 'flex';
+
+  } catch(err){
+    loadingMsg.classList.add('hidden');
+    out.innerHTML = '<div class="error">Could not generate the blueprint right now (' + escapeHtml(err.message) + '). Try regenerating.</div>';
+    out.classList.remove('hidden');
+    resultRow.style.display = 'flex';
+  }
+}
+
+function escapeHtml(s){
+  return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+function renderBlueprint(bp){
+  const out = document.getElementById('output');
+  let html = '';
+
+  html += `<div style="margin-bottom:16px;">
+    <span class="badge">${escapeHtml(bp.theme || '')}</span>
+    <span class="badge">${escapeHtml(bp.estimatedRuntime || '')}</span>
+    <span class="badge">${escapeHtml(state.platform)}</span>
+  </div>`;
+
+  html += `<div class="scene"><h3>Hook</h3><div class="field">${escapeHtml(bp.hook || '')}</div></div>`;
+
+  html += `<div class="scene"><h3>Voiceover script</h3><div class="field" style="white-space:pre-line;">${escapeHtml(bp.voiceoverScript || '')}</div>`;
+  if (bp.performanceNotes && bp.performanceNotes.length){
+    html += `<div class="field"><b>Performance notes:</b> ${bp.performanceNotes.map(escapeHtml).join(', ')}</div>`;
+  }
+  html += `</div>`;
+
+  if (bp.musicTimeline && bp.musicTimeline.length){
+    html += `<div class="scene"><h3>Music plan</h3>`;
+    html += `<div class="field"><b>Style:</b> ${escapeHtml(bp.musicStyle || '')}</div>`;
+    bp.musicTimeline.forEach(m => {
+      html += `<div class="field"><b>${escapeHtml(m.range)}:</b> ${escapeHtml(m.description)}</div>`;
+    });
+    html += `</div>`;
+  }
+
+  html += `<h2 style="margin:20px 0 8px;font-size:15px;">Scene breakdown</h2>`;
+  (bp.scenes || []).forEach((sc, i) => {
+    html += `<div class="scene">
+      <h3>Scene ${i+1}: ${escapeHtml(sc.title || '')}</h3>
+      <div class="meta">${escapeHtml(sc.duration || '')}</div>
+      <div class="field"><b>Visual prompt:</b> ${escapeHtml(sc.visualPrompt || '')}</div>
+      <div class="field"><b>Narration:</b> ${escapeHtml(sc.narration || '')}</div>
+      <div class="field"><b>Camera:</b> ${escapeHtml(sc.camera || '')} &nbsp; <b>Lighting:</b> ${escapeHtml(sc.lighting || '')} &nbsp; <b>Motion:</b> ${escapeHtml(sc.motion || '')}</div>
+
+      <div class="model-tabs" data-scene="${i}">
+        ${MODELS.map((m, j) => `<div class="model-tab${j===0?' active':''}" data-model="${m}">${m}</div>`).join('')}
+      </div>
+      <div style="position:relative;">
+        <button class="copy-btn" data-copy="${i}">Copy</button>
+        <pre id="prompt-${i}">${escapeHtml(buildModelPrompt(MODELS[0], sc.visualPrompt, sc.camera, sc.lighting, sc.motion))}</pre>
+      </div>
+    </div>`;
+  });
+
+  if (bp.editingPlan && bp.editingPlan.length){
+    html += `<div class="scene"><h3>Editing plan</h3>`;
+    bp.editingPlan.forEach(step => {
+      html += `<div class="field">- ${escapeHtml(step)}</div>`;
+    });
+    html += `<div class="meta" style="margin-top:8px;">Compatible with CapCut, Adobe Premiere Pro, DaVinci Resolve, and Descript.</div>`;
+    html += `</div>`;
+  }
+
+  out.innerHTML = html;
+
+  // Wire model tab switching
+  out.querySelectorAll('.model-tabs').forEach(group => {
+    const sceneIdx = group.dataset.scene;
+    const sc = bp.scenes[sceneIdx];
+    group.querySelectorAll('.model-tab').forEach(tab => {
+      tab.addEventListener('click', () => {
+        group.querySelectorAll('.model-tab').forEach(t => t.classList.remove('active'));
+        tab.classList.add('active');
+        const promptText = buildModelPrompt(tab.dataset.model, sc.visualPrompt, sc.camera, sc.lighting, sc.motion);
+        document.getElementById('prompt-' + sceneIdx).textContent = promptText;
+      });
+    });
+  });
+
+  // Wire copy buttons
+  out.querySelectorAll('.copy-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const idx = btn.dataset.copy;
+      const text = document.getElementById('prompt-' + idx).textContent;
+      navigator.clipboard.writeText(text).then(() => {
+        const original = btn.textContent;
+        btn.textContent = 'Copied';
+        setTimeout(() => btn.textContent = original, 1200);
+      });
+    });
+  });
+}
+</script>
+</body>
+</html>
