@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Taxi Budget Tracker</title>
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <link rel="manifest" href="data:application/json,{%22name%22:%22Taxi%20Budget%22,%22short_name%22:%22TaxiBudget%22,%22start_url%22:%22.%22,%22display%22:%22standalone%22,%22background_color%22:%22#121212%22,%22theme_color%22:%22#121212%22}">
+    
+    <style>
+        :root {
+            --bg: #121212;
+            --surface: #1e1e1e;
+            --primary: #bb86fc;
+            --accent: #03dac6;
+            --text: #e0e0e0;
+            --text-muted: #a0a0a0;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+        body { background: var(--bg); color: var(--text); padding: 16px; display: flex; flex-direction: column; align-items: center; min-height: 100vh; }
+        .container { width: 100%; max-width: 400px; display: flex; flex-direction: column; gap: 16px; }
+        h1 { font-size: 1.4rem; text-align: center; margin-bottom: 8px; color: var(--primary); }
+        .card { background: var(--surface); padding: 16px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.3); }
+        .row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+        .row:last-child { margin-bottom: 0; }
+        label { font-size: 0.9rem; color: var(--text-muted); }
+        input { background: #2d2d2d; border: 1px solid #444; color: #fff; padding: 8px; border-radius: 6px; width: 80px; text-align: right; font-size: 1rem; }
+        input:focus { border-color: var(--primary); outline: none; }
+        .total-box { text-align: center; background: linear-gradient(145deg, #251c3a, #1a1a1a); border: 1px solid var(--primary); }
+        .grand-total { font-size: 2.2rem; font-weight: bold; color: var(--accent); margin: 8px 0; }
+        .daily-sub { font-size: 0.9rem; color: var(--text-muted); }
+        .route-toggle { display: flex; gap: 8px; margin-bottom: 8px; }
+        .btn { flex: 1; background: #2d2d2d; border: 1px solid #444; color: var(--text-muted); padding: 10px; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 0.9rem; }
+        .btn.active { background: var(--primary); color: #000; border-color: var(--primary); }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Taxi Budget Tracker</h1>
+
+    <div class="route-toggle">
+        <button class="btn active" id="btn-orig" onclick="setRoute('original')">Original Route</button>
+        <button class="btn" id="btn-alt" onclick="setRoute('alternative')">Alternative</button>
+    </div>
+
+    <div class="card">
+        <div class="row">
+            <label for="leg1">Leg 1 (Home <-> Town):</label>
+            <input type="number" id="leg1" value="25" oninput="calculate()">
+        </div>
+        <div class="row">
+            <label for="leg2">Leg 2 (Town <-> Work):</label>
+            <input type="number" id="leg2" value="23" oninput="calculate()">
+        </div>
+        <div class="row">
+            <label for="days">Commuting Days:</label>
+            <input type="number" id="days" value="19" oninput="calculate()">
+        </div>
+    </div>
+
+    <div class="card total-box">
+        <div class="daily-sub">Daily Total: <span id="daily-out">R96.00</span></div>
+        <div class="grand-total" id="grand-out">R1,824.00</div>
+        <div class="daily-sub">Total Budget Needed</div>
+    </div>
+</div>
+
+<script>
+    // Quick local storage caching so it remembers your edits
+    const storageKey = 'taxi_budget_presets';
+    let data = JSON.parse(localStorage.getItem(storageKey)) || {
+        currentRoute: 'original',
+        original: { leg1: 25, leg2: 23, days: 19 },
+        alternative: { leg1: 10, leg2: 23, days: 19 }
+    };
+
+    function setRoute(route) {
+        // Save current inputs before switching
+        saveCurrentInputs();
+        
+        data.currentRoute = route;
+        document.getElementById('btn-orig').classList.toggle('active', route === 'original');
+        document.getElementById('btn-alt').classList.toggle('active', route === 'alternative');
+        
+        // Load new route values
+        document.getElementById('leg1').value = data[route].leg1;
+        document.getElementById('leg2').value = data[route].leg2;
+        document.getElementById('days').value = data[route].days;
+        
+        calculate();
+    }
+
+    function saveCurrentInputs() {
+        const route = data.currentRoute;
+        data[route].leg1 = parseFloat(document.getElementById('leg1').value) || 0;
+        data[route].leg2 = parseFloat(document.getElementById('leg2').value) || 0;
+        data[route].days = parseInt(document.getElementById('days').value) || 0;
+        localStorage.setItem(storageKey, JSON.stringify(data));
+    }
+
+    function calculate() {
+        const leg1 = parseFloat(document.getElementById('leg1').value) || 0;
+        const leg2 = parseFloat(document.getElementById('leg2').value) || 0;
+        const days = parseInt(document.getElementById('days').value) || 0;
+
+        const dailyTotal = (leg1 + leg2) * 2;
+        const grandTotal = dailyTotal * days;
+
+        document.getElementById('daily-out').innerText = `R${dailyTotal.toFixed(2)}`;
+        document.getElementById('grand-out').innerText = `R${grandTotal.toLocaleString('en-ZA', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+        
+        // Save instantly on every keystroke
+        saveCurrentInputs();
+    }
+
+    // Service Worker inline registration for flawless offline execution
+    if ('serviceWorker' in navigator) {
+        const swCode = `
+            const cacheName = 'taxi-v1';
+            self.addEventListener('install', e => self.skipWaiting());
+            self.addEventListener('activate', e => e.waitUntil(clients.claim()));
+            self.addEventListener('fetch', e => e.respondWith(fetch(e.request).catch(() => caches.match(e.request))));
+        `;
+        const blob = new Blob([swCode], { type: 'application/javascript' });
+        navigator.serviceWorker.register(URL.createObjectURL(blob));
+    }
+
+    // Initialize UI on load
+    window.onload = () => {
+        setRoute(data.currentRoute);
+    };
+</script>
+
+</body>
+</html>
