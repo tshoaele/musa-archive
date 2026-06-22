@@ -1,0 +1,543 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Transport Budget</title>
+  <style>
+    :root {
+      --ink: #17201c;
+      --muted: #66716a;
+      --paper: #fffdf7;
+      --canvas: #e9eee9;
+      --line: #d8ded8;
+      --green: #176b4d;
+      --green-soft: #dcece3;
+      --amber: #a35b17;
+      --amber-soft: #f7e7d1;
+      --red: #a43d35;
+      --red-soft: #f5ddda;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      padding: 22px 14px;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at top left, rgba(255,255,255,.9), transparent 36%),
+        var(--canvas);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    button, input { font: inherit; }
+
+    .app {
+      width: min(100%, 520px);
+      margin: 0 auto;
+    }
+
+    header {
+      display: flex;
+      align-items: end;
+      justify-content: space-between;
+      margin-bottom: 12px;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 20px;
+      line-height: 1;
+      letter-spacing: -.04em;
+    }
+
+    .plan-total {
+      color: var(--muted);
+      font-size: 11px;
+    }
+
+    .card {
+      overflow: hidden;
+      margin-bottom: 10px;
+      border: 1px solid rgba(23,32,28,.11);
+      border-radius: 16px;
+      background: var(--paper);
+      box-shadow: 0 10px 28px rgba(26,42,33,.06);
+    }
+
+    .balance-card { padding: 15px; }
+
+    .eyebrow {
+      display: block;
+      margin-bottom: 7px;
+      color: var(--muted);
+      font-size: 10px;
+      font-weight: 750;
+      letter-spacing: .11em;
+      text-transform: uppercase;
+    }
+
+    .money-input {
+      display: flex;
+      align-items: center;
+      border-bottom: 1px solid var(--line);
+      transition: border-color .2s;
+    }
+
+    .money-input:focus-within { border-color: var(--green); }
+
+    .money-input span {
+      color: var(--green);
+      font-size: 27px;
+      font-weight: 750;
+    }
+
+    .money-input input {
+      width: 100%;
+      min-width: 0;
+      padding: 2px 0 7px 7px;
+      border: 0;
+      outline: 0;
+      color: var(--ink);
+      background: transparent;
+      font-size: 31px;
+      font-weight: 760;
+      letter-spacing: -.04em;
+    }
+
+    .money-input input::placeholder { color: #b2bab4; }
+
+    .quick-stats {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1px;
+      margin-top: 12px;
+      overflow: hidden;
+      border-radius: 10px;
+      background: var(--line);
+    }
+
+    .stat {
+      padding: 9px 8px;
+      background: #f4f5ef;
+    }
+
+    .stat small {
+      display: block;
+      margin-bottom: 2px;
+      color: var(--muted);
+      font-size: 9px;
+      text-transform: uppercase;
+    }
+
+    .stat strong {
+      font-size: 14px;
+      letter-spacing: -.02em;
+    }
+
+    .section-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 14px 8px;
+    }
+
+    .section-head h2 {
+      margin: 0;
+      font-size: 12px;
+      letter-spacing: -.01em;
+    }
+
+    .section-total {
+      color: var(--muted);
+      font-size: 11px;
+    }
+
+    .add-row {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 92px 42px;
+      gap: 6px;
+      padding: 0 12px 12px;
+    }
+
+    .field {
+      width: 100%;
+      min-width: 0;
+      height: 38px;
+      padding: 0 10px;
+      border: 1px solid var(--line);
+      border-radius: 9px;
+      outline: 0;
+      color: var(--ink);
+      background: #fff;
+      font-size: 12px;
+    }
+
+    .field:focus { border-color: var(--green); }
+
+    .add-btn {
+      height: 38px;
+      border: 0;
+      border-radius: 9px;
+      color: #fff;
+      background: var(--green);
+      font-size: 20px;
+      cursor: pointer;
+    }
+
+    .add-btn:hover { filter: brightness(.94); }
+
+    .expense-list { border-top: 1px solid var(--line); }
+
+    .expense-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      min-height: 37px;
+      padding: 6px 12px;
+      border-bottom: 1px solid var(--line);
+      font-size: 12px;
+    }
+
+    .expense-row:last-child { border-bottom: 0; }
+
+    .expense-right {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      font-weight: 700;
+    }
+
+    .remove-btn {
+      width: 23px;
+      height: 23px;
+      padding: 0;
+      border: 0;
+      border-radius: 50%;
+      color: var(--muted);
+      background: #edf0eb;
+      line-height: 1;
+      cursor: pointer;
+    }
+
+    .empty {
+      padding: 10px 12px 12px;
+      color: var(--muted);
+      font-size: 11px;
+    }
+
+    details summary {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 14px;
+      list-style: none;
+      cursor: pointer;
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    details summary::-webkit-details-marker { display: none; }
+
+    details summary::after {
+      content: "+";
+      color: var(--green);
+      font-size: 18px;
+      font-weight: 500;
+    }
+
+    details[open] summary::after { content: "−"; }
+
+    .day-list { border-top: 1px solid var(--line); }
+
+    .day-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 7px 14px;
+      border-bottom: 1px solid var(--line);
+      color: var(--muted);
+      font-size: 11px;
+    }
+
+    .day-row:last-child { border-bottom: 0; }
+    .day-row.today { color: var(--green); background: var(--green-soft); font-weight: 750; }
+    .day-row.past { text-decoration: line-through; opacity: .48; }
+
+    .result {
+      position: relative;
+      padding: 16px;
+      color: #fff;
+      background: var(--green);
+      transition: background .2s;
+    }
+
+    .result.short { background: var(--red); }
+
+    .result::before,
+    .result::after {
+      position: absolute;
+      top: -8px;
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      background: var(--canvas);
+      content: "";
+    }
+
+    .result::before { left: -8px; }
+    .result::after { right: -8px; }
+
+    .result-top {
+      display: flex;
+      align-items: start;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    .result-label {
+      margin: 0 0 3px;
+      font-size: 10px;
+      font-weight: 750;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      opacity: .75;
+    }
+
+    .result h2 {
+      margin: 0;
+      font-size: 22px;
+      line-height: 1.05;
+      letter-spacing: -.04em;
+    }
+
+    .result-amount {
+      flex: 0 0 auto;
+      font-size: 29px;
+      font-weight: 800;
+      line-height: 1;
+      letter-spacing: -.05em;
+    }
+
+    .result-copy {
+      margin: 11px 0 0;
+      padding-top: 10px;
+      border-top: 1px dashed rgba(255,255,255,.35);
+      font-size: 11px;
+      line-height: 1.45;
+      opacity: .88;
+    }
+
+    .bar {
+      height: 5px;
+      margin-top: 11px;
+      overflow: hidden;
+      border-radius: 99px;
+      background: rgba(255,255,255,.25);
+    }
+
+    .bar-fill {
+      height: 100%;
+      width: 0;
+      border-radius: inherit;
+      background: #fff;
+      transition: width .35s ease;
+    }
+
+    @media (max-width: 380px) {
+      body { padding: 14px 10px; }
+      .add-row { grid-template-columns: minmax(0, 1fr) 80px 38px; }
+      .result h2 { font-size: 19px; }
+      .result-amount { font-size: 25px; }
+    }
+  </style>
+</head>
+<body>
+  <main class="app">
+    <header>
+      <h1>Transport budget</h1>
+      <span class="plan-total">Full plan: R639</span>
+    </header>
+
+    <section class="card balance-card">
+      <label class="eyebrow" for="balance">Money available now</label>
+      <div class="money-input">
+        <span>R</span>
+        <input id="balance" type="number" min="0" step="0.01" placeholder="0" inputmode="decimal">
+      </div>
+      <div class="quick-stats">
+        <div class="stat"><small>Commute left</small><strong id="commute-left">R0</strong></div>
+        <div class="stat"><small>Extras</small><strong id="extras-total">R0</strong></div>
+        <div class="stat"><small>Required now</small><strong id="required-now">R0</strong></div>
+      </div>
+    </section>
+
+    <section class="card">
+      <div class="section-head">
+        <h2>One-off expenses</h2>
+        <span class="section-total" id="expense-count">0 items</span>
+      </div>
+      <div class="add-row">
+        <input class="field" id="expense-label" type="text" placeholder="Printing, lunch...">
+        <input class="field" id="expense-amount" type="number" min="0" step="0.01" placeholder="R 0" inputmode="decimal">
+        <button class="add-btn" id="add-expense" type="button" aria-label="Add expense">+</button>
+      </div>
+      <div class="expense-list" id="expense-list"></div>
+    </section>
+
+    <section class="card">
+      <details>
+        <summary><span>Commute schedule</span><span id="days-summary"></span></summary>
+        <div class="day-list" id="day-list"></div>
+      </details>
+    </section>
+
+    <section class="card result" id="result" aria-live="polite">
+      <div class="result-top">
+        <div>
+          <p class="result-label">Your position</p>
+          <h2 id="result-title">Enter your balance</h2>
+        </div>
+        <span class="result-amount" id="result-amount">R0</span>
+      </div>
+      <div class="bar"><div class="bar-fill" id="bar-fill"></div></div>
+      <p class="result-copy" id="result-copy">We will compare it with every commute still ahead, plus your extras.</p>
+    </section>
+  </main>
+
+  <script>
+    const schedule = [
+      { date: "2026-06-15", label: "Mon 15 Jun", cost: 81 },
+      { date: "2026-06-16", label: "Tue 16 Jun", cost: 66 },
+      { date: "2026-06-17", label: "Wed 17 Jun", cost: 66 },
+      { date: "2026-06-18", label: "Thu 18 Jun", cost: 66 },
+      { date: "2026-06-19", label: "Fri 19 Jun", cost: 81 },
+      { date: "2026-06-22", label: "Mon 22 Jun", cost: 81 },
+      { date: "2026-06-23", label: "Tue 23 Jun", cost: 66 },
+      { date: "2026-06-24", label: "Wed 24 Jun", cost: 66 },
+      { date: "2026-06-25", label: "Thu 25 Jun", cost: 66 }
+    ];
+
+    let extras = [];
+
+    const money = value => `R${Math.round(value).toLocaleString("en-ZA")}`;
+
+    function localDateString() {
+      const now = new Date();
+      const year = now.getFullYear();
+      const month = String(now.getMonth() + 1).padStart(2, "0");
+      const day = String(now.getDate()).padStart(2, "0");
+      return `${year}-${month}-${day}`;
+    }
+
+    function safeText(value) {
+      const node = document.createElement("span");
+      node.textContent = value;
+      return node.innerHTML;
+    }
+
+    function addExpense() {
+      const labelInput = document.getElementById("expense-label");
+      const amountInput = document.getElementById("expense-amount");
+      const label = labelInput.value.trim();
+      const amount = Number(amountInput.value);
+
+      if (!label || !Number.isFinite(amount) || amount <= 0) return;
+
+      extras.push({ id: Date.now(), label, amount });
+      labelInput.value = "";
+      amountInput.value = "";
+      labelInput.focus();
+      update();
+    }
+
+    function removeExpense(id) {
+      extras = extras.filter(expense => expense.id !== id);
+      update();
+    }
+
+    function update() {
+      const today = localDateString();
+      const balanceRaw = document.getElementById("balance").value;
+      const balance = Math.max(0, Number(balanceRaw) || 0);
+      const remainingDays = schedule.filter(day => day.date >= today);
+      const commuteRemaining = remainingDays.reduce((sum, day) => sum + day.cost, 0);
+      const extrasTotal = extras.reduce((sum, expense) => sum + expense.amount, 0);
+      const requiredNow = commuteRemaining + extrasTotal;
+      const difference = balance - requiredNow;
+      const shortfall = Math.max(0, -difference);
+      const surplus = Math.max(0, difference);
+      const progress = requiredNow === 0 ? 100 : Math.min(100, (balance / requiredNow) * 100);
+
+      document.getElementById("commute-left").textContent = money(commuteRemaining);
+      document.getElementById("extras-total").textContent = money(extrasTotal);
+      document.getElementById("required-now").textContent = money(requiredNow);
+      document.getElementById("expense-count").textContent =
+        `${extras.length} ${extras.length === 1 ? "item" : "items"}`;
+      document.getElementById("days-summary").textContent =
+        `${remainingDays.length} ${remainingDays.length === 1 ? "day" : "days"} left`;
+      document.getElementById("bar-fill").style.width = `${progress}%`;
+
+      const expenseList = document.getElementById("expense-list");
+      expenseList.innerHTML = extras.length
+        ? extras.map(expense => `
+            <div class="expense-row">
+              <span>${safeText(expense.label)}</span>
+              <span class="expense-right">
+                ${money(expense.amount)}
+                <button class="remove-btn" type="button"
+                  onclick="removeExpense(${expense.id})"
+                  aria-label="Remove ${safeText(expense.label)}">×</button>
+              </span>
+            </div>
+          `).join("")
+        : '<div class="empty">Nothing extra added.</div>';
+
+      document.getElementById("day-list").innerHTML = schedule.map(day => {
+        const state = day.date === today ? "today" : day.date < today ? "past" : "";
+        const marker = day.date === today ? " · today" : "";
+        return `<div class="day-row ${state}"><span>${day.label}${marker}</span><strong>${money(day.cost)}</strong></div>`;
+      }).join("");
+
+      const result = document.getElementById("result");
+      const title = document.getElementById("result-title");
+      const amount = document.getElementById("result-amount");
+      const copy = document.getElementById("result-copy");
+
+      if (balanceRaw === "") {
+        result.classList.remove("short");
+        title.textContent = "Enter your balance";
+        amount.textContent = money(requiredNow);
+        copy.textContent = `This is what you need for ${remainingDays.length} remaining commute days${extras.length ? " and your extras" : ""}.`;
+      } else if (shortfall > 0) {
+        const perDay = remainingDays.length ? Math.ceil(shortfall / remainingDays.length) : shortfall;
+        result.classList.add("short");
+        title.textContent = "You are short";
+        amount.textContent = money(shortfall);
+        copy.textContent = remainingDays.length
+          ? `Top up about ${money(perDay)} per remaining commute day to close the gap.`
+          : `Your commute is complete; this gap comes from the extras you added.`;
+      } else {
+        result.classList.remove("short");
+        title.textContent = surplus > 0 ? "Everything is covered" : "Exactly covered";
+        amount.textContent = money(surplus);
+        copy.textContent = surplus > 0
+          ? `Surplus after all remaining transport and extras.`
+          : `Your available money exactly matches what is still required.`;
+      }
+    }
+
+    document.getElementById("balance").addEventListener("input", update);
+    document.getElementById("add-expense").addEventListener("click", addExpense);
+    document.getElementById("expense-label").addEventListener("keydown", event => {
+      if (event.key === "Enter") addExpense();
+    });
+    document.getElementById("expense-amount").addEventListener("keydown", event => {
+      if (event.key === "Enter") addExpense();
+    });
+
+    update();
+  </script>
+</body>
+</html>
